@@ -9,7 +9,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 /****************************************************************************
- * 
+ * Base of all session requests.
  */
 public abstract 
 class SessionRequest 
@@ -43,9 +43,9 @@ class SessionRequest
 	}
 
 	/************************************************************************
-	 *  
+	 * Gets the request's identifier 
 	 *
-	 * @return
+	 * @return request identifier
 	 */
 	public long
 	getRequestId()

@@ -9,6 +9,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 /****************************************************************************
+ * Base of all session replies.
  * 
  */
 public abstract 
@@ -21,6 +22,7 @@ class SessionReply
 	
 	private final long itsReplyId;
 	private final long itsOriginatingRequestId;
+	private String     itsMessage;
 
 	/************************************************************************
 	 * Creates a new SessionReply. 
@@ -31,6 +33,7 @@ class SessionReply
 	SessionReply(long originatingRequestId)
 	{
 		this( theirGenerator.nextLong(),originatingRequestId );
+		itsMessage = "";
 	}
 
 	/************************************************************************
@@ -45,11 +48,24 @@ class SessionReply
 		itsReplyId              = replyId;
 		itsOriginatingRequestId = origRequestId;
 	}
+	  
+    /************************************************************************
+     * Sets the reply's message attribute to the specified message. 
+     *
+     * @param   message     message explaining the result
+     * @return  reference to this {@code SessionReply} for method chaining
+     */
+    public SessionReply
+    setMessage(String message)
+    {
+        itsMessage = message;
+        return this;
+    }
 	
 	/************************************************************************
-	 *  
+	 * Gets the reply's identifier. 
 	 *
-	 * @return
+	 * @return reply identifier
 	 */
 	public long
 	getReplyId()
@@ -58,14 +74,25 @@ class SessionReply
 	}
 	
 	/************************************************************************
-	 *  
+	 * Gets the originating request's identifier 
 	 *
-	 * @return
+	 * @return originating request identifier
 	 */
 	public long
 	getOriginatingRequestId()
 	{
 		return itsOriginatingRequestId;
+	}
+	
+	/************************************************************************
+	 * Gets the reply's message attribute. 
+	 *
+	 * @return message explaining reply
+	 */
+	public String
+	getMessage()
+	{
+	    return itsMessage;
 	}
 }
 

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class 
+	    abstract="false" 
+	    name="tictactoe.domain.sessiondomain.Session" 
+	    table="Session">
+  		<id 
+  	    	column="SessionId" 
+  	    	name="SessionId" 
+  	    	type="java.lang.Long">
+   			<generator class="native"/>
+  		</id>
+  		<version 
+  		    column="Version" 
+  		    generated="never" 
+  		    name="Version" 
+  		    type="java.lang.Integer"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="UserId" 
+   		    column="UserId"
+   		    type="java.lang.Long"/>
+
+   		<query 
+   		    fetch-size="100" name="getSessions" read-only="true">select s from Session s</query>
+ 	</class>
+</hibernate-mapping>

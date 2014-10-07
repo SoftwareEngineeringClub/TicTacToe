@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class 
+	    abstract="false" 
+	    name="tictactoe.domain.playerdomain.Player" 
+	    table="Player">
+  		<id 
+  	    	column="PlayerId" 
+  	    	name="PlayerId" 
+  	    	type="java.lang.Long">
+   			<generator class="native"/>
+  		</id>
+  		<version 
+  		    column="Version" 
+  		    generated="never" 
+  		    name="Version" 
+  		    type="java.lang.Integer"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="UserId" 
+   		    column="UserId"
+   		    type="java.lang.Long"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="Status" 
+   		    column="Status">
+   		    <type name="org.hibernate.type.EnumType">
+   		    	<param name="enumClass">tictactoe.domain.playerdomain.PlayerStatus</param>
+   		    	<param name="useNamed">true</param>
+   		    </type>
+   		</property>
+		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="Wins" 
+   		    column="Wins"
+   		    type="java.lang.Integer"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="Losses" 
+   		    column="Losses"
+   		    type="java.lang.Integer"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="Ties" 
+   		    column="Ties"
+   		    type="java.lang.Integer"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="CurrentRank" 
+   		    column="CurrentRank"
+   		    type="java.math.BigDecimal"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="AverageRank" 
+   		    column="AverageRank"
+   		    type="java.math.BigDecimal"/>
+
+   		<query 
+   		    fetch-size="100" 
+   		    name="getPlayerWithUserId" 
+   		    read-only="true">
+   		    select p from Player p where p.UserId = :userId
+   		</query>
+
+   		<query 
+   		    fetch-size="2" 
+   		    name="hasPlayerWithUserId" 
+   		    read-only="true">
+   		    select count(p) from Player p where p.UserId = :userId
+   		</query>
+ 	</class>
+</hibernate-mapping>

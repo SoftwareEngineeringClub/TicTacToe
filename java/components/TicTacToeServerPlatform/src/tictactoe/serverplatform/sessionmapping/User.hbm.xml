@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class 
+	    abstract="false" 
+	    name="tictactoe.domain.sessiondomain.User" 
+	    table="User">
+  		<id 
+  	    	column="UserId" 
+  	    	name="UserId" 
+  	    	type="java.lang.Long">
+   			<generator class="native"/>
+  		</id>
+  		<version 
+  		    column="Version" 
+  		    generated="never" 
+  		    name="Version" 
+  		    type="java.lang.Integer"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    unique="true"
+   		    name="UserName" 
+   		    column="UserName"
+   		    type="java.lang.String"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="Password" 
+   		    column="Password"
+   		    type="java.lang.String"/>
+
+   		<query 
+   		    fetch-size="100" 
+   		    name="getUsers" 
+   		    read-only="true">
+   		    select u from User u
+   		</query>
+
+   		<query 
+   		    fetch-size="1" 
+   		    name="getUserWithName" 
+   		    read-only="true">
+   		    select u from User u where u.UserName = :userName
+   		</query>
+ 	</class>
+</hibernate-mapping>

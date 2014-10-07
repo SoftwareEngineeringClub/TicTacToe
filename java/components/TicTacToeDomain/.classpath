@@ -2,5 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataCommon/1.0.0/StrataCommon-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataPersistence/1.0.0/StrataPersistence-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataInjector/1.0.0/StrataInjector-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/inject/javax.inject/1/javax.inject-1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
