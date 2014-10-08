@@ -1,45 +1,35 @@
 // ##########################################################################
-// # File Name:	TaskConsumerProvider.java
+// # File Name:	AnyTaskSelector.java
 // ##########################################################################
 
 package tictactoe.application.taskdispatcher;
 
-import strata1.common.logger.ILogger;
 import strata1.common.task.ITask;
-import strata1.common.task.ITaskConsumer;
 import strata1.common.task.ITaskSelector;
-import strata1.common.task.TaskConsumer;
-import strata1.injector.container.IContainer;
 
 /****************************************************************************
  * 
  */
 public 
-class TaskConsumerProvider 
-    implements ITaskConsumerProvider
+class AnyTaskSelector 
+    implements ITaskSelector
 {
-    private final IContainer itsContainer;
-    
+
     /************************************************************************
-     * Creates a new TaskConsumerProvider. 
+     * Creates a new AnyTaskSelector. 
      *
      */
     public 
-    TaskConsumerProvider(IContainer container)
-    {
-        itsContainer = container;
-    }
+    AnyTaskSelector() {}
 
     /************************************************************************
      * {@inheritDoc} 
      */
     @Override
-    public ITaskConsumer 
-    get()
+    public boolean 
+    match(ITask task)
     {
-        ILogger logger = itsContainer.getInstance( ILogger.class );
-        
-        return new TaskConsumer(null,logger);
+        return true;
     }
 
 }

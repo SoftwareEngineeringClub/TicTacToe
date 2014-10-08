@@ -42,6 +42,7 @@ class SessionAppModule
                     .withScope( new ThreadScope<ISessionProcessor>() ) )
             .insertBinding( 
                 bindType(ISessionService.class)
+                    .withKey( "SessionServiceImplementation" )
                     .toType(SessionServiceImp.class)
                     .withScope( new ThreadScope<ISessionService>() ) );
     }

@@ -6,5 +6,6 @@
 	<classpathentry kind="var" path="M2_REPO/strata1/StrataCommon/1.0.0/StrataCommon-1.0.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/strata1/StrataInjector/1.0.0/StrataInjector-1.0.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/strata1/StrataIntegrator/1.0.0/StrataIntegrator-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/inject/javax.inject/1/javax.inject-1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
