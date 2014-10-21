@@ -4,19 +4,17 @@
 
 package tictactoe.desktop.main;
 
-import tictactoe.desktop.bootstrap.TicTacToeDesktopBootstrapper;
 import tictactoe.desktop.bootstrap.TicTacToeDesktopFactory;
 
-import strata1.client.application.ClientApplication;
-import strata1.client.bootstrap.IClientBootstrapper;
-import strata1.client.bootstrap.IClientFactory;
+import strata1.client.application.DesktopApplication;
+import strata1.injector.bootstrap.ApplicationBootstrapper;
 
 /****************************************************************************
  * 
  */
 public 
 class TicTacToeDesktopApp 
-    extends ClientApplication
+    extends DesktopApplication
 {
 
     /************************************************************************
@@ -29,7 +27,7 @@ class TicTacToeDesktopApp
     TicTacToeDesktopApp()
     {
         super( 
-            new TicTacToeDesktopBootstrapper(),
+            new ApplicationBootstrapper(),
             new TicTacToeDesktopFactory() );
     }
     
@@ -41,13 +39,17 @@ class TicTacToeDesktopApp
     public static void 
     main(String[] args)
     {
+        TicTacToeDesktopApp application = 
+            new TicTacToeDesktopApp();
+        
         try
         {
-            new TicTacToeDesktopApp().run( args );
+            application.run( args );
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
+            System.exit( -1 );
         }
     }
 
