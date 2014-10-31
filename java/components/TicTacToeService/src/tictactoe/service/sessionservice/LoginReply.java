@@ -19,7 +19,8 @@ class LoginReply
 {
 	private static final long serialVersionUID	= 2045086519428517965L;
 
-	private long   itsSessionId;
+	private long itsSessionId;
+	private long itsUserId;
 	
 	/************************************************************************
 	 * Creates a new LoginReply. 
@@ -59,6 +60,20 @@ class LoginReply
         itsSessionId = sessionId;
         return this;
     }
+    
+    /************************************************************************
+     * Sets the reply's userId to the identifier of the user 
+     * logging in via the original {@code LoginRequest}. 
+     *
+     * @param   userId identifier of the user logging in
+     * @return  reference to this {@code LoginReply} for method chaining
+     */
+    public LoginReply
+    setUserId(long userId)
+    {
+        itsUserId = userId;
+        return this;
+    }
 
     /************************************************************************
      * Sets the reply's message attribute to the specified message. 
@@ -85,6 +100,19 @@ class LoginReply
     getSessionId()
     {
     	return itsSessionId;
+    }
+    
+    /************************************************************************
+     * Gets the reply's sessionId attribute. 
+     *
+     * @return  {@code if (isLoggedIn() == true)}, 
+     *          the identifier of the logged in user,
+     *          {@code else} 0L;
+     */
+    public long
+    getUserId()
+    {
+        return itsUserId;
     }
     
     /************************************************************************

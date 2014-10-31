@@ -6,6 +6,7 @@ package tictactoe.integration.serviceinvoker;
 
 import strata1.injector.container.AbstractModule;
 import strata1.injector.container.IContainer;
+import strata1.injector.container.SingletonScope;
 
 /****************************************************************************
  * 
@@ -36,17 +37,21 @@ class ServiceInvokerModule
             .insertBinding( 
                 bindType(ServiceInvoker.class)
                     .withKey( "ServiceInvoker1" )
-                    .toInstance( 
-                        new ServiceInvoker(
+                    .toProvider( 
+                        new ServiceInvokerProvider(
                             container,
-                            "MessagingSession1a") ) )
+                            "CommandSession1",
+                            "RequestChannelId1" ) )
+                    .withScope( new SingletonScope<ServiceInvoker>() ) )
             .insertBinding( 
                 bindType(ServiceInvoker.class)
                     .withKey( "ServiceInvoker2" )
-                    .toInstance( 
-                        new ServiceInvoker(
+                    .toProvider( 
+                        new ServiceInvokerProvider(
                             container,
-                            "MessagingSession2a") ) );
+                            "CommandSession2",
+                            "RequestChannelId2" ) )
+                    .withScope( new SingletonScope<ServiceInvoker>() ) );
     }
 
 }

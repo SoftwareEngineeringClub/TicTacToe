@@ -7,7 +7,7 @@ package tictactoe.desktop.main;
 import tictactoe.desktop.bootstrap.TicTacToeDesktopFactory;
 
 import strata1.client.application.DesktopApplication;
-import strata1.injector.bootstrap.ApplicationBootstrapper;
+import strata1.injector.bootstrap.Bootstrapper;
 
 /****************************************************************************
  * 
@@ -27,7 +27,7 @@ class TicTacToeDesktopApp
     TicTacToeDesktopApp()
     {
         super( 
-            new ApplicationBootstrapper(),
+            new Bootstrapper(),
             new TicTacToeDesktopFactory() );
     }
     

@@ -42,6 +42,8 @@ class SessionMessagingProxy
             container.getInstance(String.class,"EventChannelId"),
             container.getInstance(IMessagingSession.class,"CommandSession"),
             container.getInstance(IMessagingSession.class,"EventSession"));
+        
+        
     }
 
     /************************************************************************
@@ -57,6 +59,7 @@ class SessionMessagingProxy
         
         message
             .setCorrelationId( correlationId )
+            .setStringProperty( "RequestType","RegisterRequest" )
             .setPayload( request );
 
         insertPendingReceiver( correlationId,receiver);
@@ -76,6 +79,7 @@ class SessionMessagingProxy
         
         message
             .setCorrelationId( correlationId )
+            .setStringProperty( "RequestType","LoginRequest" )
             .setPayload( request );
 
         insertPendingReceiver( correlationId,receiver);
@@ -95,6 +99,7 @@ class SessionMessagingProxy
         
         message
             .setCorrelationId( correlationId )
+            .setStringProperty( "RequestType","LogoutRequest" )
             .setPayload( request );
 
         insertPendingReceiver( correlationId,receiver);

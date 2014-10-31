@@ -214,6 +214,7 @@ class SessionModel
     public void 
     onSessionException(SessionException exception)
     {
+        exception.printStackTrace( System.out );
     }
 
     /************************************************************************
@@ -225,6 +226,7 @@ class SessionModel
     public void 
     onThrowable(Throwable throwable)
     {
+        throwable.printStackTrace( System.out );
     }
 
 }

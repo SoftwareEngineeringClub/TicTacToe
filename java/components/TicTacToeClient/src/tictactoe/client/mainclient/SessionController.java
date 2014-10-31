@@ -58,7 +58,7 @@ class SessionController
     public void 
     start()
     {
-        itsView.show();
+        itsView.start();
     }
     
     /************************************************************************

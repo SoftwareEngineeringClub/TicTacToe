@@ -58,7 +58,7 @@ class MainController
     {
         itsMainView
             .setActiveTab(itsMainModel.getActiveTab())
-            .show();
+            .start();
         itsSessionController.start();
     }
 

@@ -2,7 +2,7 @@
 // # File Name:	MessagingModule.java
 // ##########################################################################
 
-package tictactoe.integration.messaging;
+package tictactoe.desktopplatform.jmsmessaging;
 
 import strata1.injector.container.AbstractModule;
 import strata1.injector.container.IContainer;
@@ -37,20 +37,12 @@ class MessagingModule
         container
             .insertBinding( 
                 bindType(IMessagingSession.class)
-                    .withKey( "CommandSession1" )
-                    .toInstance(createCommandSession1()))
+                    .withKey( "CommandSession" )
+                    .toInstance(createCommandSession()))
             .insertBinding( 
                 bindType(IMessagingSession.class)
-                    .withKey( "EventSession1" )
-                    .toInstance(createEventSession1()))
-            .insertBinding( 
-                bindType(IMessagingSession.class)
-                    .withKey( "CommandSession2" )
-                    .toInstance(createCommandSession2()))
-            .insertBinding( 
-                bindType(IMessagingSession.class)
-                    .withKey( "EventSession2" )
-                    .toInstance(createEventSession2()));
+                    .withKey( "EventSession" )
+                    .toInstance(createEventSession()));
     }
 
     /************************************************************************
@@ -59,7 +51,7 @@ class MessagingModule
      * @return
      */
     protected abstract IMessagingSession 
-    createCommandSession1();
+    createCommandSession();
 
     /************************************************************************
      *  
@@ -67,23 +59,7 @@ class MessagingModule
      * @return
      */
     protected abstract IMessagingSession 
-    createEventSession1();
-
-    /************************************************************************
-     *  
-     *
-     * @return
-     */
-    protected abstract IMessagingSession 
-    createCommandSession2();
-
-    /************************************************************************
-     *  
-     *
-     * @return
-     */
-    protected abstract IMessagingSession 
-    createEventSession2();
+    createEventSession();
 
 }
 

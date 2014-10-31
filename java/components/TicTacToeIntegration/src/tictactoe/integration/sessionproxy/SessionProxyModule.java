@@ -4,8 +4,11 @@
 
 package tictactoe.integration.sessionproxy;
 
+import tictactoe.service.sessionservice.ISessionService;
+
 import strata1.injector.container.AbstractModule;
 import strata1.injector.container.IContainer;
+import strata1.integrator.messaging.IMessagingSession;
 
 /****************************************************************************
  * 
@@ -33,9 +36,15 @@ class SessionProxyModule
     public void 
     initialize(IContainer container)
     {
+        if (!container.hasBinding(IMessagingSession.class,"CommandSession"))
+            throw new IllegalStateException("CommandSession is null");
+        
+        if (!container.hasBinding(IMessagingSession.class,"EventSession"))
+            throw new IllegalStateException("EventSession is null");
+          
         container
             .insertBinding(
-                bindType( ISessionMessagingProxy.class)
+                bindType( ISessionService.class)
                     .toProvider( 
                         new SessionMessagingProxyProvider( container ) ) );
     }

@@ -1,16 +1,17 @@
 // ##########################################################################
-// # File Name:	TicTacToeDesktopFactory.java
+// # File Name:	TicTacToeServerFactory.java
 // ##########################################################################
 
-package tictactoe.desktop.bootstrap;
+package tictactoe.server.bootstrap;
 
-import tictactoe.client.gameclient.GameClientTestModule;
-import tictactoe.client.homeclient.HomeClientTestModule;
-import tictactoe.client.playersclient.PlayersClientTestModule;
-import tictactoe.desktopplatform.desktopuserinterface.DesktopUserInterfaceModule;
-import tictactoe.desktopplatform.jmsmessaging.JmsMessagingModule;
-import tictactoe.desktopplatform.maindesktop.MainDesktopModule;
-import tictactoe.integration.sessionproxy.SessionProxyModule;
+import tictactoe.application.sessionapp.SessionAppModule;
+import tictactoe.application.taskdispatcher.TaskDispatcherModule;
+import tictactoe.domain.gamedomain.GameDomainModule;
+import tictactoe.domain.playerdomain.PlayerDomainModule;
+import tictactoe.domain.sessiondomain.SessionDomainModule;
+import tictactoe.integration.serviceinvoker.ServiceInvokerModule;
+import tictactoe.serverplatform.hibernatepersistence.HibernatePersistenceModule;
+import tictactoe.serverplatform.jmsmessaging.JmsMessagingModule;
 
 import strata1.common.logger.ILogger;
 import strata1.common.logger.PrintWriterLogEntryProcessor;
@@ -31,17 +32,17 @@ import java.util.Properties;
  * 
  */
 public 
-class TicTacToeDesktopFactory 
+class TicTacToeServerFactory 
     extends AbstractApplicationFactory
 {
 
     /************************************************************************
-     * Creates a new TicTacToeDesktopFactory. 
+     * Creates a new TicTacToeServerFactory. 
      *
      */
     public 
-    TicTacToeDesktopFactory() {}
-
+    TicTacToeServerFactory() {}
+    
     /************************************************************************
      * {@inheritDoc} 
      */
@@ -63,16 +64,19 @@ class TicTacToeDesktopFactory
     @Override
     public List<IModule> 
     createModules()
-    {   
+    {
         List<IModule> modules = new ArrayList<IModule>();
+        
         modules.add( new PropertiesModule( createProperties() ) );
-        modules.add( new JmsMessagingModule() );
-        modules.add( new SessionProxyModule() );
-        modules.add( new DesktopUserInterfaceModule() );
-        modules.add( new MainDesktopModule() );
-        modules.add( new HomeClientTestModule() );
-        modules.add( new PlayersClientTestModule() );
-        modules.add( new GameClientTestModule() );
+        modules.add(  new JmsMessagingModule() );
+        modules.add(  new HibernatePersistenceModule() );
+        modules.add(  new SessionDomainModule() );
+        modules.add(  new PlayerDomainModule() );
+        modules.add(  new GameDomainModule() );
+        modules.add(  new SessionAppModule() );
+        modules.add(  new TaskDispatcherModule() );
+        modules.add(  new ServiceInvokerModule() );
+        
         return modules;
     }
 
@@ -83,9 +87,9 @@ class TicTacToeDesktopFactory
     public IStartStopController 
     createStartStopController()
     {
-        return new TicTacToeDesktopStartStopController();
+        return new TicTacToeServerStartStopController();
     }
-
+    
     /************************************************************************
      *  
      *
@@ -99,7 +103,7 @@ class TicTacToeDesktopFactory
             ClassLoader
                 .getSystemClassLoader()
                 .getResourceAsStream( 
-                    "tictactoe/desktop/main/tictactoedesktop.properties" );
+                    "tictactoe/server/main/tictactoeserver.properties" );
         
         try
         {
@@ -112,6 +116,7 @@ class TicTacToeDesktopFactory
         
         return properties;
     }
+
 }
 
 // ##########################################################################

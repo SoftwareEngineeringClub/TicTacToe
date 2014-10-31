@@ -10,6 +10,7 @@ import tictactoe.client.mainclient.ISessionView;
 import strata1.client.command.ExecutionException;
 import strata1.client.view.AbstractView;
 import strata1.common.authentication.ICredential;
+import strata1.common.authentication.UserNameAndPasswordCredential;
 import strata1.swtclient.swtview.ISwtView;
 
 import org.eclipse.swt.SWT;
@@ -90,15 +91,15 @@ class SwtSessionView
         itsFolder = folder;
         itsItem   = item;
         
-        createFileComposite();
-        
+        createFileComposite();       
         createSelectorsComposite();  
+        createControlsComposite();
+
         createLoginSelectorButton();     
         createLogoutSelectorButton();      
         createRegisterSelectorButton();
         createExitPushButton();     
         
-        createControlsComposite();
         createLoginControls();
         createLogoutControls();       
         createRegisterControls();
@@ -131,6 +132,15 @@ class SwtSessionView
     public void 
     start()
     {
+        StackLayout layout = 
+            (StackLayout)itsControlsComposite.getLayout();
+        
+        itsLogoutButton.setSelection( false );
+        itsRegisterButton.setSelection( false );
+        layout.topControl = itsLoginControls;
+        itsControlsComposite.layout();
+
+        show();        
     }
 
     /************************************************************************
@@ -169,6 +179,13 @@ class SwtSessionView
     public void 
     reset()
     {
+        StackLayout layout = 
+            (StackLayout)itsControlsComposite.getLayout();
+        
+        itsLogoutButton.setSelection( false );
+        itsRegisterButton.setSelection( false );
+        layout.topControl = itsLoginControls;
+        itsControlsComposite.layout();
     }
 
     /************************************************************************
@@ -178,6 +195,12 @@ class SwtSessionView
     public void 
     displayMessage(String message)
     {
+        MessageBox dialog = 
+            new MessageBox(new Shell(), SWT.ICON_ERROR | SWT.OK );
+        
+          dialog.setText("Error");
+          dialog.setMessage(message);
+          dialog.open();                     
     }
 
     /************************************************************************
@@ -187,7 +210,10 @@ class SwtSessionView
     public ICredential 
     getLoginCredential()
     {
-        return null;
+        String userName = itsLoginUserNameField.getText();
+        String password = itsLoginPasswordField.getText();
+        
+        return new UserNameAndPasswordCredential(userName,password);
     }
 
     /************************************************************************
@@ -197,7 +223,10 @@ class SwtSessionView
     public ICredential 
     getRegisterCredential()
     {
-        return null;
+        String userName = itsRegisterUserNameField.getText();
+        String password = itsRegisterPasswordField.getText();
+        
+        return new UserNameAndPasswordCredential(userName,password);
     }
 
     /************************************************************************
@@ -268,7 +297,6 @@ class SwtSessionView
                     itsRegisterButton.setSelection( false );
                     layout.topControl = itsLoginControls;
                     itsControlsComposite.layout();
-                    System.out.println( "Login Selected");
                 }
             } );
         layout.topControl = itsLoginControls;
@@ -307,7 +335,6 @@ class SwtSessionView
                     itsRegisterButton.setSelection( false );
                     layout.topControl = itsLogoutControls;
                     itsControlsComposite.layout();
-                    System.out.println( "Logout Selected");
                 }                
             });
     }
@@ -345,7 +372,6 @@ class SwtSessionView
                     itsLogoutButton.setSelection( false );
                     layout.topControl = itsRegisterControls;
                     itsControlsComposite.layout();
-                    System.out.println( "Register Selected");
                 }                
             });
 

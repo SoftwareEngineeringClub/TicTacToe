@@ -32,25 +32,25 @@ class ServiceInvoker
     implements ITaskProducer,IMessageListener
 {    
     private final IContainer        itsContainer;
+    private final String            itsRequestChannel;
     private final IMessagingSession itsSession;
     private IMessageReceiver        itsReceiver;
-    private final String            itsRequestChannel;
     
     /************************************************************************
      * Creates a new SessionInvoker. 
      *
      */
-    @Inject
     public 
-    ServiceInvoker(IContainer container)
-    {
-        
+    ServiceInvoker(
+        IContainer container,
+        String     session,
+        String     requestChannelId)
+    {        
         itsContainer = container;
-        
         itsRequestChannel = 
-            itsContainer.getInstance( String.class,"RequestChannel" );
-        
-        itsSession  = itsContainer.getInstance( IMessagingSession.class );
+            itsContainer.getInstance( String.class,requestChannelId );
+        itsSession  = 
+            itsContainer.getInstance( IMessagingSession.class,session );
         itsReceiver = null;
     }
 
@@ -60,13 +60,16 @@ class ServiceInvoker
     @Override
     public void 
     startProducing()
-    {
-        if ( itsReceiver == null )
-            itsReceiver = 
-                itsSession.createMessageReceiver( itsRequestChannel );
-        
+    {        
         try
         {
+            if ( itsReceiver == null )
+            {
+                itsReceiver = 
+                    itsSession.createMessageReceiver( itsRequestChannel );
+                itsReceiver.setListener( this );
+            }
+            
             itsReceiver.startListening();
         }
         catch (MixedModeException e)
@@ -87,6 +90,8 @@ class ServiceInvoker
             try
             {
                 itsReceiver.stopListening();
+                itsReceiver.close();
+                itsReceiver = null;
             }
             catch (MixedModeException e)
             {

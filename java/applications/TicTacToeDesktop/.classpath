@@ -17,5 +17,8 @@
 	<classpathentry kind="var" path="M2_REPO/org/fusesource/hawtdispatch/hawtdispatch/1.20/hawtdispatch-1.20.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/fusesource/hawtdispatch/hawtdispatch-transport/1.20/hawtdispatch-transport-1.20.jar"/>
 	<classpathentry kind="lib" path="/TicTacToeDesktopPlatform/resources/resources.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeDesktopPlatform"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeClientTest"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeService"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

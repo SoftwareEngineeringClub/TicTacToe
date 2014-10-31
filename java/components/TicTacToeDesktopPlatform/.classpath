@@ -2,5 +2,20 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeClient"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeClientPlatform"/>
+	<classpathentry kind="var" path="M2_REPO/org/eclipse/swt.win32.win32.x86_64/3.7.2/swt.win32.win32.x86_64-3.7.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataCommon/1.0.0/StrataCommon-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataInjector/1.0.0/StrataInjector-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataClient/1.0.0/StrataClient-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataSwtClient/1.0.0/StrataSwtClient-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/jms/javax.jms-api/2.0/javax.jms-api-2.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/activemq/activemq-all/5.9.1/activemq-all-5.9.1.jar"/>
+	<classpathentry kind="lib" path="resources/resources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/inject/javax.inject/1/javax.inject-1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeService"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeIntegration"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataIntegrator/1.0.0/StrataIntegrator-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataJmsIntegrator/1.0.0/StrataJmsIntegrator-1.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -6,6 +6,7 @@ package tictactoe.serverplatform.jmsmessaging;
 
 import tictactoe.integration.messaging.MessagingModule;
 
+import strata1.injector.container.IContainer;
 import strata1.integrator.messaging.IMessagingSession;
 import strata1.jmsintegrator.jmsmessaging.JmsQueueMessagingSession;
 import strata1.jmsintegrator.jmsmessaging.JmsTopicMessagingSession;
@@ -27,8 +28,8 @@ public
 class JmsMessagingModule 
     extends MessagingModule
 {
-    private final ActiveMQSslConnectionFactory itsFactory1;
-    private final StompJmsConnectionFactory    itsFactory2;
+    private ActiveMQSslConnectionFactory itsFactory1;
+    private StompJmsConnectionFactory    itsFactory2;
     
     /************************************************************************
      * Creates a new JmsMessagingModule. 
@@ -38,16 +39,30 @@ class JmsMessagingModule
     JmsMessagingModule()
     {
         super( "JmsMessagingModule" );
-        itsFactory1 = createFactory1();
-        itsFactory2 = createFactory2();
+        itsFactory1 = null;
+        itsFactory2 = null;
     }
+    
+    
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    initialize(IContainer container)
+    {
+        itsFactory1 = createFactory1( container );
+        itsFactory2 = createFactory2( container );
+        super.initialize( container );
+    }
+
 
     /************************************************************************
      * {@inheritDoc} 
      */
     @Override
     protected IMessagingSession 
-    createMessagingSession1a()
+    createCommandSession1()
     {
         return new JmsQueueMessagingSession(itsFactory1);
     }
@@ -57,7 +72,7 @@ class JmsMessagingModule
      */
     @Override
     protected IMessagingSession 
-    createMessagingSession1b()
+    createEventSession1()
     {
         return new JmsTopicMessagingSession(itsFactory1);
     }
@@ -68,7 +83,7 @@ class JmsMessagingModule
      */
     @Override
     protected IMessagingSession 
-    createMessagingSession2a()
+    createCommandSession2()
     {
         return new JmsQueueMessagingSession(itsFactory2);
     }
@@ -78,7 +93,7 @@ class JmsMessagingModule
      */
     @Override
     protected IMessagingSession 
-    createMessagingSession2b()
+    createEventSession2()
     {
         return new JmsTopicMessagingSession(itsFactory2);
     }
@@ -89,12 +104,15 @@ class JmsMessagingModule
      * @return
      */
     protected ActiveMQSslConnectionFactory
-    createFactory1()
+    createFactory1(IContainer container)
     {
-        String host =
-            //"ssl://localhost:61617";
-            "ssl://ec2-54-68-199-128.us-west-2.compute.amazonaws.com:61617";
-        
+        String host = 
+            container.getInstance(String.class,"MessagingHostUri1");
+        String userName = 
+            container.getInstance(String.class,"MessagingUserName");
+        String password = 
+            container.getInstance(String.class,"MessagingPassword");
+            
         ActiveMQSslConnectionFactory factory = null;
         TrustManager[]               manager = null;
         
@@ -129,8 +147,8 @@ class JmsMessagingModule
             manager, 
             new SecureRandom()); 
         
-        factory.setUserName( "strata-activemq-user" );
-        factory.setPassword( "Dbr6pzyX" );
+        factory.setUserName( userName );
+        factory.setPassword( password );
         
         return factory;
 
@@ -142,11 +160,14 @@ class JmsMessagingModule
      * @return
      */
     protected StompJmsConnectionFactory
-    createFactory2()
+    createFactory2(IContainer container)
     {
-        String host =
-            "ssl://ec2-54-68-199-128.us-west-2.compute.amazonaws.com:61618";
-            //"ssl://localhost:61618";
+        String host = 
+            container.getInstance(String.class,"MessagingHostUri2");
+        String userName = 
+            container.getInstance(String.class,"MessagingUserName");
+        String password = 
+            container.getInstance(String.class,"MessagingPassword");
         
         StompJmsConnectionFactory factory = null;
         TrustManager[]            manager = null;
@@ -190,8 +211,8 @@ class JmsMessagingModule
             throw new IllegalStateException( e );
         }        
         
-        factory.setUsername( "strata-activemq-user" );
-        factory.setPassword( "Dbr6pzyX" );
+        factory.setUsername( userName );
+        factory.setPassword( password );
         
         return factory;
         
