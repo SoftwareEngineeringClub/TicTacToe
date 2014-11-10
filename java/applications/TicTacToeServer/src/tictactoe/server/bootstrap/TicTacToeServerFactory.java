@@ -4,6 +4,7 @@
 
 package tictactoe.server.bootstrap;
 
+import tictactoe.application.playerapp.PlayerAppModule;
 import tictactoe.application.sessionapp.SessionAppModule;
 import tictactoe.application.taskdispatcher.TaskDispatcherModule;
 import tictactoe.domain.gamedomain.GameDomainModule;
@@ -21,6 +22,8 @@ import strata1.injector.bootstrap.IStartStopController;
 import strata1.injector.container.IModule;
 import strata1.injector.property.PropertiesModule;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -51,10 +54,20 @@ class TicTacToeServerFactory
     createLogger()
     {
         ILogger logger = super.createLogger();
+        FileOutputStream output = null;
+        
+        try
+        {
+            output = new FileOutputStream("TicTacToeServer.log");
+        }
+        catch (FileNotFoundException e)
+        {
+            throw new IllegalStateException(e);
+        }
         
         logger.attachProcessor( 
             new PrintWriterLogEntryProcessor(
-                new PrintWriter(System.out) ) );
+                new PrintWriter(output) ) );
         return logger;
     }
 
@@ -74,6 +87,7 @@ class TicTacToeServerFactory
         modules.add(  new PlayerDomainModule() );
         modules.add(  new GameDomainModule() );
         modules.add(  new SessionAppModule() );
+        modules.add(  new PlayerAppModule() );
         modules.add(  new TaskDispatcherModule() );
         modules.add(  new ServiceInvokerModule() );
         

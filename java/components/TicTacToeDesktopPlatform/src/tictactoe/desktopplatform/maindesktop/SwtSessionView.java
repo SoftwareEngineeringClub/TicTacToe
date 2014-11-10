@@ -8,12 +8,15 @@ import tictactoe.client.mainclient.IMainView;
 import tictactoe.client.mainclient.ISessionView;
 
 import strata1.client.command.ExecutionException;
+import strata1.client.shell.IDispatcher;
 import strata1.client.view.AbstractView;
 import strata1.common.authentication.ICredential;
 import strata1.common.authentication.UserNameAndPasswordCredential;
 import strata1.swtclient.swtview.ISwtView;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -43,30 +46,31 @@ class SwtSessionView
     extends    AbstractView 
     implements ISessionView,ISwtView
 {
-    private TabFolder itsFolder;
-    private TabItem   itsItem;
-    private Composite itsFileComposite;
-    private Composite itsSelectorsComposite;
-    private Button    itsLoginButton;
-    private Button    itsRegisterButton;
-    private Button    itsLogoutButton;
-    private Button    itsExitButton;
-    private Composite itsControlsComposite;
-    private Composite itsLoginControls;
-    private Text      itsLoginUserNameField;
-    private Label     itsLoginPasswordLabel;
-    private Text      itsLoginPasswordField;
-    private Composite itsLoginButtonComposite;
-    private Button    itsLoginPushButton;
-    private Button    itsLoginCancelPushButton;
-    private Composite itsLogoutControls;
-    private Button    itsLogoutPushButton;
-    private Button    itsLogoutCancelPushButton;
-    private Composite itsRegisterControls;
-    private Text      itsRegisterUserNameField;
-    private Text      itsRegisterPasswordField;
-    private Button    itsRegisterPushButton;
-    private Button    itsRegisterCancelPushButton;
+    private IDispatcher itsDispatcher;
+    private CTabFolder  itsFolder;
+    private CTabItem    itsItem;
+    private Composite   itsFileComposite;
+    private Composite   itsSelectorsComposite;
+    private Button      itsLoginButton;
+    private Button      itsRegisterButton;
+    private Button      itsLogoutButton;
+    private Button      itsExitButton;
+    private Composite   itsControlsComposite;
+    private Composite   itsLoginControls;
+    private Text        itsLoginUserNameField;
+    private Label       itsLoginPasswordLabel;
+    private Text        itsLoginPasswordField;
+    private Composite   itsLoginButtonComposite;
+    private Button      itsLoginPushButton;
+    private Button      itsLoginCancelPushButton;
+    private Composite   itsLogoutControls;
+    private Button      itsLogoutPushButton;
+    private Button      itsLogoutCancelPushButton;
+    private Composite   itsRegisterControls;
+    private Text        itsRegisterUserNameField;
+    private Text        itsRegisterPasswordField;
+    private Button      itsRegisterPushButton;
+    private Button      itsRegisterCancelPushButton;
 
     /************************************************************************
      * Creates a new SwtMainView. 
@@ -74,11 +78,36 @@ class SwtSessionView
      */
     @Inject
     public 
-    SwtSessionView(IMainView mainView)
+    SwtSessionView(IDispatcher dispatcher,IMainView mainView)
     {
         this(
+            dispatcher,
             ((SwtMainView)mainView).getTabFolder(),
             ((SwtMainView)mainView).getFileTab() );
+    }
+
+    /************************************************************************
+     * Creates a new SwtMainView. 
+     */
+    public 
+    SwtSessionView(IDispatcher dispatcher,CTabFolder folder,CTabItem item)
+    {
+        itsDispatcher = dispatcher;
+        itsFolder = folder;
+        itsItem   = item;
+        
+        createFileComposite();       
+        createSelectorsComposite();  
+        createControlsComposite();
+
+        createLoginSelectorButton();     
+        createLogoutSelectorButton();      
+        createRegisterSelectorButton();
+        createExitPushButton();     
+        
+        createLoginControls();
+        createLogoutControls();       
+        createRegisterControls();
     }
 
     /************************************************************************
@@ -86,8 +115,9 @@ class SwtSessionView
      * @wbp.parser.constructor 
      */
     public 
-    SwtSessionView(TabFolder folder,TabItem item)
+    SwtSessionView(CTabFolder folder,CTabItem item)
     {
+        itsDispatcher = null;
         itsFolder = folder;
         itsItem   = item;
         
@@ -193,14 +223,25 @@ class SwtSessionView
      */
     @Override
     public void 
-    displayMessage(String message)
+    displayMessage(final String message)
     {
-        MessageBox dialog = 
-            new MessageBox(new Shell(), SWT.ICON_ERROR | SWT.OK );
-        
-          dialog.setText("Error");
-          dialog.setMessage(message);
-          dialog.open();                     
+        Runnable action = 
+            new Runnable()
+            {
+                @Override
+                public void 
+                run()
+                {
+                    MessageBox dialog = 
+                        new MessageBox(new Shell(), SWT.ICON_ERROR | SWT.OK );
+                    
+                      dialog.setText("Error");
+                      dialog.setMessage(message);
+                      dialog.open();                     
+                }               
+            };
+            
+        itsDispatcher.invokeAsynchronous( action );
     }
 
     /************************************************************************
@@ -403,7 +444,14 @@ class SwtSessionView
                 public void 
                 widgetSelected(SelectionEvent arg0)
                 {
-                    System.exit( 0 );
+                    try
+                    {
+                        invoke( "Exit" );
+                    }
+                    catch (ExecutionException e)
+                    {
+                        displayMessage( e.getMessage() );
+                    }
                 }               
             } );
     }
@@ -456,6 +504,7 @@ class SwtSessionView
         itsLoginPasswordField = new Text(itsLoginControls, SWT.BORDER);
         itsLoginPasswordField.setBackground(SWTResourceManager.getColor(SWT.COLOR_INFO_BACKGROUND));
         itsLoginPasswordField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        itsLoginPasswordField.setEchoChar( '*' );
         new Label(itsLoginControls, SWT.NONE);
         new Label(itsLoginControls, SWT.NONE);
         new Label(itsLoginControls, SWT.NONE);
@@ -651,6 +700,7 @@ class SwtSessionView
         gd_itsRegisterPasswordField.widthHint = 213;
         itsRegisterPasswordField.setLayoutData(gd_itsRegisterPasswordField);
         itsRegisterPasswordField.setBounds(0, 0, 214, 21);
+        itsRegisterPasswordField.setEchoChar( '*' );
         new Label(itsRegisterControls, SWT.NONE);
         new Label(itsRegisterControls, SWT.NONE);
         new Label(itsRegisterControls, SWT.NONE);

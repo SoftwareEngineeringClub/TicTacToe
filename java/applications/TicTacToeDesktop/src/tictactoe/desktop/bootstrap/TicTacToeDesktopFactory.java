@@ -8,8 +8,11 @@ import tictactoe.client.gameclient.GameClientTestModule;
 import tictactoe.client.homeclient.HomeClientTestModule;
 import tictactoe.client.playersclient.PlayersClientTestModule;
 import tictactoe.desktopplatform.desktopuserinterface.DesktopUserInterfaceModule;
+import tictactoe.desktopplatform.homedesktop.HomeDesktopModule;
 import tictactoe.desktopplatform.jmsmessaging.JmsMessagingModule;
 import tictactoe.desktopplatform.maindesktop.MainDesktopModule;
+import tictactoe.desktopplatform.playersdesktop.PlayersDesktopModule;
+import tictactoe.integration.playerproxy.PlayerProxyModule;
 import tictactoe.integration.sessionproxy.SessionProxyModule;
 
 import strata1.common.logger.ILogger;
@@ -68,10 +71,11 @@ class TicTacToeDesktopFactory
         modules.add( new PropertiesModule( createProperties() ) );
         modules.add( new JmsMessagingModule() );
         modules.add( new SessionProxyModule() );
+        modules.add( new PlayerProxyModule() );
         modules.add( new DesktopUserInterfaceModule() );
         modules.add( new MainDesktopModule() );
-        modules.add( new HomeClientTestModule() );
-        modules.add( new PlayersClientTestModule() );
+        modules.add( new HomeDesktopModule() );
+        modules.add( new PlayersDesktopModule() );
         modules.add( new GameClientTestModule() );
         return modules;
     }

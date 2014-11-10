@@ -4,6 +4,8 @@
 
 package tictactoe.client.homeclient;
 
+import tictactoe.service.playerservice.PlayerData;
+
 import strata1.client.view.IView;
 
 import java.math.BigDecimal;
@@ -15,22 +17,10 @@ public
 interface IHomeView extends IView
 {
     public IHomeView
-    setPlayerName(String playerName);
+    setPlayerData(PlayerData playerData);
     
-    public IHomeView
-    setPlayerRank(BigDecimal playerRank);
-    
-    public IHomeView
-    setGamesPlayed(Integer gamesPlayed);
-    
-    public IHomeView
-    setWins(Integer wins);
-    
-    public IHomeView
-    setLosses(Integer losses);
-    
-    public IHomeView
-    setTies(Integer ties);
+    public void
+    displayError(String message);
 }
 
 // ##########################################################################

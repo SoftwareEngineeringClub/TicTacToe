@@ -9,6 +9,7 @@ import tictactoe.service.sessionservice.ISessionService;
 import tictactoe.service.sessionservice.LoginReply;
 import tictactoe.service.sessionservice.LoginRequest;
 import tictactoe.service.sessionservice.LogoutReply;
+import tictactoe.service.sessionservice.LogoutRequest;
 import tictactoe.service.sessionservice.RegisterReply;
 import tictactoe.service.sessionservice.RegisterRequest;
 import tictactoe.service.sessionservice.SessionException;
@@ -16,6 +17,8 @@ import tictactoe.service.sessionservice.SessionException;
 import strata1.client.event.IChangeEvent;
 import strata1.client.event.IChangeEventProcessor;
 import strata1.common.authentication.ICredential;
+import strata1.common.logger.ILogger;
+
 import javax.inject.Inject;
 
 /****************************************************************************
@@ -26,7 +29,11 @@ class SessionModel
     implements ISessionModel,ISessionReplyReceiver
 {
     private final ISessionService itsService;
+    private final ILogger         itsLogger;
     private IChangeEventProcessor itsProcessor;
+    private boolean               itsLoggedInFlag;
+    private Long                  itsSessionId;
+    private Long                  itsUserId;
     private LoginReply            itsLoginReply;
     private RegisterReply         itsRegisterReply;
     
@@ -36,9 +43,10 @@ class SessionModel
      */
     @Inject
     public 
-    SessionModel(ISessionService service)
+    SessionModel(ISessionService service,ILogger logger)
     {
         itsService       = service;
+        itsLogger        = logger;
         itsProcessor     = null;
         itsLoginReply    = null;
         itsRegisterReply = null;
@@ -84,6 +92,20 @@ class SessionModel
      */
     @Override
     public void 
+    logout()
+    {
+        LogoutRequest request = 
+            new LogoutRequest()
+                .setSessionId( getSessionId() );
+        
+        itsService.logout( this,request );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
     register(ICredential credential)
     {
         RegisterRequest request = 
@@ -101,9 +123,7 @@ class SessionModel
     public Long 
     getSessionId()
     {
-        return 
-            itsLoginReply != null 
-                ? itsLoginReply.getSessionId() : null;
+        return itsSessionId;
     }
 
     /************************************************************************
@@ -113,9 +133,7 @@ class SessionModel
     public Long 
     getUserId()
     {
-        return 
-            itsLoginReply != null 
-                ? itsLoginReply.getUserId() : null;
+        return itsUserId;
     }
 
     /************************************************************************
@@ -149,9 +167,7 @@ class SessionModel
     public boolean 
     isLoggedIn()
     {
-        return 
-            itsLoginReply != null 
-                ? itsLoginReply.isLoggedIn() : false;
+        return itsLoggedInFlag;
     }
 
     /************************************************************************
@@ -175,6 +191,9 @@ class SessionModel
     public void 
     onRegister(RegisterReply reply)
     {
+        itsLogger.logInfo( 
+            "Receiving register reply:" + reply.getReplyId() + 
+            " for request: " + reply.getOriginatingRequestId() );
         itsRegisterReply = reply;
         notifyChange( new RegisterEvent(this) );
     }
@@ -188,7 +207,15 @@ class SessionModel
     public void 
     onLogin(LoginReply reply)
     {
-        itsLoginReply = reply;
+        itsLogger.logInfo( 
+            "Receiving login reply:" + reply.getReplyId() + 
+            " for request: " + reply.getOriginatingRequestId() );
+        
+        itsLoginReply   = reply;
+        itsLoggedInFlag = reply.isLoggedIn();
+        itsSessionId    = reply.getSessionId();
+        itsUserId       = reply.getUserId();
+        
         notifyChange( new LoginEvent(this) );
     }
 
@@ -201,8 +228,18 @@ class SessionModel
     public void 
     onLogout(LogoutReply reply)
     {
-        throw 
-            new IllegalStateException( "This model does not handle logout");
+        itsLogger.logInfo( 
+            "Receiving logout reply:" + reply.getReplyId() + 
+            " for request: " + reply.getOriginatingRequestId() );
+
+        if ( reply.isLoggedOut() )
+        {
+            itsLoggedInFlag = false;
+            itsSessionId    = 0L;
+            itsUserId       = 0L;
+        }
+        
+        notifyChange( new LogoutEvent(this) );
     }
 
     /************************************************************************
@@ -214,6 +251,8 @@ class SessionModel
     public void 
     onSessionException(SessionException exception)
     {
+        itsLogger.logError( 
+            "Receiving session exception:" + exception.getMessage() );
         exception.printStackTrace( System.out );
     }
 
@@ -226,6 +265,8 @@ class SessionModel
     public void 
     onThrowable(Throwable throwable)
     {
+        itsLogger.logError( 
+            "Receiving throwable:" + throwable.getMessage() );
         throwable.printStackTrace( System.out );
     }
 

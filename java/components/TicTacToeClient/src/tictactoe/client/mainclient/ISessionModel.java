@@ -18,6 +18,9 @@ interface ISessionModel
     login(ICredential credential);
     
     public void
+    logout();
+    
+    public void
     register(ICredential credential);
     
     public Long

@@ -9,11 +9,13 @@ import tictactoe.client.homeclient.IHomeController;
 import tictactoe.client.mainclient.IMainController;
 import tictactoe.client.mainclient.ISessionController;
 import tictactoe.client.playersclient.IPlayersController;
+import tictactoe.service.playerservice.IPlayerService;
 import tictactoe.service.sessionservice.ISessionService;
 
 import strata1.client.shell.IDispatcher;
 import strata1.injector.bootstrap.IStartStopController;
 import strata1.injector.container.IContainer;
+import strata1.integrator.messaging.IMessagingSession;
 
 /****************************************************************************
  * 
@@ -94,16 +96,17 @@ class TicTacToeDesktopStartStopController
     private void
     doStartUp()
     {  
+        IMessagingSession  commandSession    = null;
         ISessionService    sessionService    = null;
+        IPlayerService     playerService     = null;
         IMainController    mainController    = null;
         ISessionController sessionController = null;
         IHomeController    homeController    = null;
         IPlayersController playersController = null;
         IGameController    gameController    = null;
         
-        System.out.println( "debug 1");
+        commandSession = itsContainer.getInstance( IMessagingSession.class,"CommandSession" );
         sessionService = itsContainer.getInstance( ISessionService.class );
-        System.out.println( "debug 2");
         mainController = itsContainer.getInstance(IMainController.class);
         sessionController = itsContainer.getInstance(ISessionController.class);
         homeController = itsContainer.getInstance(IHomeController.class);
@@ -127,6 +130,7 @@ class TicTacToeDesktopStartStopController
         if ( gameController == null )
             throw new NullPointerException("GameController is null.");
 
+        commandSession.startReceiving();
         mainController.start();   
     }
 }

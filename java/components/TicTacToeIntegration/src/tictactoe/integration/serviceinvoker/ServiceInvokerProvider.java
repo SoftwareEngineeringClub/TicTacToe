@@ -17,6 +17,7 @@ class ServiceInvokerProvider
     private final IContainer itsContainer;
     private final String     itsSession;
     private final String     itsRequestChannelId;
+    private final String     itsReplyChannelId;
     
     /************************************************************************
      * Creates a new ServiceInvokerProvider. 
@@ -26,11 +27,13 @@ class ServiceInvokerProvider
     ServiceInvokerProvider(
         IContainer container,
         String     session,
-        String     requestChannelId)
+        String     requestChannelId,
+        String     replyChannelId)
     {
         itsContainer        = container;
         itsSession          = session;
         itsRequestChannelId = requestChannelId;
+        itsReplyChannelId   = replyChannelId;
     }
 
     /************************************************************************
@@ -44,7 +47,8 @@ class ServiceInvokerProvider
             new ServiceInvoker(
                 itsContainer,
                 itsSession,
-                itsRequestChannelId );
+                itsRequestChannelId,
+                itsReplyChannelId);
     }
 
 }

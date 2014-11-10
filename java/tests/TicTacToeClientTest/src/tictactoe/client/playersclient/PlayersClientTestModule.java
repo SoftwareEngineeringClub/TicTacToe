@@ -32,6 +32,18 @@ class PlayersClientTestModule
         return FakePlayersController.class;
     }
 
+    @Override
+    protected Class<? extends IPlayersView> getPlayersViewType()
+    {
+        return null;
+    }
+
+    @Override
+    protected Class<? extends IPlayersModel> getPlayersModelType()
+    {
+        return null;
+    }
+
 }
 
 // ##########################################################################

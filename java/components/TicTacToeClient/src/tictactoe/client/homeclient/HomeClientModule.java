@@ -36,10 +36,34 @@ class HomeClientModule
     {
         container
             .insertBinding( 
+                bindType(IHomeView.class)
+                    .toType(getHomeViewType())
+                    .withScope(new SingletonScope<IHomeView>()))
+            .insertBinding( 
+                bindType(IHomeModel.class)
+                    .toType(getHomeModelType())
+                    .withScope(new SingletonScope<IHomeModel>()))
+            .insertBinding( 
                 bindType(IHomeController.class)
                     .toType(getHomeControllerType())
                     .withScope(new SingletonScope<IHomeController>()));
     }
+
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    protected abstract Class<? extends IHomeView>
+    getHomeViewType();
+
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    protected abstract Class<? extends IHomeModel>
+    getHomeModelType();
 
     /************************************************************************
      *  

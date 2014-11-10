@@ -4,6 +4,8 @@
 
 package tictactoe.client.playersclient;
 
+import tictactoe.service.playerservice.PlayerData;
+
 import strata1.client.view.IView;
 
 /****************************************************************************
@@ -14,7 +16,10 @@ interface IPlayersView
     extends IView
 {
     public IPlayersView
-    insertPlayer(String playerName,String status);
+    insertPlayer(PlayerData playerData);
+    
+    public IPlayersView
+    removePlayers();
     
     public String
     getSelectedPlayer();

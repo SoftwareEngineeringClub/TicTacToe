@@ -10,6 +10,7 @@ import strata1.common.task.ITaskDispatcher;
 import strata1.injector.bootstrap.IApplicationStarter;
 import strata1.injector.bootstrap.IStartStopController;
 import strata1.injector.container.IContainer;
+import strata1.integrator.messaging.IMessagingSession;
 
 import java.io.IOException;
 
@@ -50,9 +51,20 @@ class TicTacToeServerStartStopController
     public void 
     startApplication()
     {
-        ITaskDispatcher dispatcher = null;
-        ServiceInvoker  invoker1   = null;
-        ServiceInvoker  invoker2   = null;
+        IMessagingSession session1   = null;
+        IMessagingSession session2   = null;
+        ITaskDispatcher   dispatcher = null;
+        ServiceInvoker    invoker1   = null;
+        ServiceInvoker    invoker2   = null;
+        
+        session1 = 
+            itsContainer.getInstance(
+                IMessagingSession.class,
+                "CommandSession1" );
+        session2 = 
+            itsContainer.getInstance(
+                IMessagingSession.class,
+                "CommandSession2" );
         
         dispatcher = 
             itsContainer.getInstance( ITaskDispatcher.class );
@@ -61,6 +73,8 @@ class TicTacToeServerStartStopController
         invoker2 = 
             itsContainer.getInstance(ServiceInvoker.class,"ServiceInvoker2");
         
+        session1.startReceiving();
+        session2.startReceiving();
         dispatcher.startDispatching();
         invoker1.startProducing();
         invoker2.startProducing();        

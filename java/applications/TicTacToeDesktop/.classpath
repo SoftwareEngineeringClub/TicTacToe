@@ -20,5 +20,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeDesktopPlatform"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeClientTest"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeService"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataIntegrator/1.0.0/StrataIntegrator-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/strata1/StrataJmsIntegrator/1.0.0/StrataJmsIntegrator-1.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -28,7 +28,7 @@ class SessionRequest
 	public
 	SessionRequest()
 	{
-		this( theirGenerator.nextLong() );
+		this( generateId() );
 	}
 	
 	/************************************************************************
@@ -51,6 +51,19 @@ class SessionRequest
 	getRequestId()
 	{
 		return itsRequestId;
+	}
+	
+	/************************************************************************
+	 * Generates a random identifier. 
+	 *
+	 * @return
+	 */
+	private static long
+	generateId()
+	{
+	    long id = theirGenerator.nextLong();
+	    
+	    return id < 0 ? -id : id;
 	}
 }
 

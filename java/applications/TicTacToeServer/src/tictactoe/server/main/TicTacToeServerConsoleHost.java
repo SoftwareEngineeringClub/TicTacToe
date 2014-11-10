@@ -12,7 +12,7 @@ import java.io.IOException;
 public 
 class TicTacToeServerConsoleHost
 {
-
+    
     /************************************************************************
      * Creates a new TicTacToeServerConsoleHost. 
      *

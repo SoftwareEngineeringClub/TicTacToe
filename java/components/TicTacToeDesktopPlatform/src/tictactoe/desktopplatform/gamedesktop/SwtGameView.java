@@ -15,6 +15,8 @@ import strata1.client.view.AbstractView;
 import strata1.swtclient.swtview.ISwtView;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
@@ -40,8 +42,8 @@ class SwtGameView
     extends    AbstractView 
     implements IGameView,ISwtView,SelectionListener
 {
-    private TabFolder     itsTabFolder;
-    private TabItem       itsGameTab;
+    private CTabFolder    itsTabFolder;
+    private CTabItem      itsGameTab;
     private Composite     itsGameComposite;
     private Label         itsStartTimeLabel;
     private Label         itsStartTimeValueLabel;
@@ -89,7 +91,7 @@ class SwtGameView
      * @param item
      */
     public 
-    SwtGameView(TabFolder folder,TabItem item)
+    SwtGameView(CTabFolder folder,CTabItem item)
     {        
         itsTabFolder = folder;     
         itsGameTab = item;

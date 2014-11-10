@@ -30,6 +30,7 @@
    		    column="Status">
    		    <type name="org.hibernate.type.EnumType">
    		    	<param name="enumClass">tictactoe.domain.playerdomain.PlayerStatus</param>
+   		    	<param name="type">12</param>
    		    	<param name="useNamed">true</param>
    		    </type>
    		</property>

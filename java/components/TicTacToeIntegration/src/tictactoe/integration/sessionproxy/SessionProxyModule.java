@@ -44,7 +44,7 @@ class SessionProxyModule
           
         container
             .insertBinding(
-                bindType( ISessionService.class)
+                bindType( ISessionService.class )
                     .toProvider( 
                         new SessionMessagingProxyProvider( container ) ) );
     }

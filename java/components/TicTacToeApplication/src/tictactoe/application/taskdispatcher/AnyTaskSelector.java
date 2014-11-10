@@ -32,6 +32,26 @@ class AnyTaskSelector
         return true;
     }
 
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public boolean 
+    equals(Object other)
+    {
+        return other instanceof AnyTaskSelector;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public int 
+    hashCode()
+    {
+        return 123;
+    }
+
 }
 
 // ##########################################################################

@@ -4,6 +4,8 @@
 
 package tictactoe.integration.serviceinvoker;
 
+import tictactoe.service.sessionservice.ISessionReplyReceiver;
+
 import strata1.injector.container.AbstractModule;
 import strata1.injector.container.IContainer;
 import strata1.injector.container.SingletonScope;
@@ -41,7 +43,8 @@ class ServiceInvokerModule
                         new ServiceInvokerProvider(
                             container,
                             "CommandSession1",
-                            "RequestChannelId1" ) )
+                            "RequestChannelId1",
+                            "ReplyChannelId1" ) )
                     .withScope( new SingletonScope<ServiceInvoker>() ) )
             .insertBinding( 
                 bindType(ServiceInvoker.class)
@@ -50,7 +53,8 @@ class ServiceInvokerModule
                         new ServiceInvokerProvider(
                             container,
                             "CommandSession2",
-                            "RequestChannelId2" ) )
+                            "RequestChannelId2",
+                            "ReplyChannelId2" ) )
                     .withScope( new SingletonScope<ServiceInvoker>() ) );
     }
 

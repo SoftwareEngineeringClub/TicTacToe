@@ -13,8 +13,17 @@ public
 interface IMainSubController 
     extends IController
 {
+    public IMainSubController
+    setSessionId(Long sessionId);
+    
+    public IMainSubController
+    setUserId(Long userId);
+    
     public IMainController
     getMainController();
+    
+    public IMainSubController
+    showView();
 }
 
 // ##########################################################################

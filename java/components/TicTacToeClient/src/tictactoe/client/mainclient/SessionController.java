@@ -10,6 +10,7 @@ import strata1.client.controller.AbstractController;
 import strata1.client.controller.IController;
 import strata1.client.controller.IHandler;
 import strata1.client.event.IChangeEvent;
+import strata1.common.logger.ILogger;
 
 import javax.inject.Inject;
 
@@ -24,6 +25,7 @@ class SessionController
     private final IMainController itsMainController;
     private final ISessionView    itsView;
     private final ISessionModel   itsModel;
+    private final ILogger         itsLogger;
     
     /************************************************************************
      * Creates a new SessionController. 
@@ -37,11 +39,13 @@ class SessionController
     SessionController(
         IMainController   mainController,
         ISessionView      view,
-        ISessionModel     model)
+        ISessionModel     model,
+        ILogger           logger)
     {
         itsMainController = mainController;
         itsView           = view;
         itsModel          = model;
+        itsLogger         = logger;
         
         itsMainController.setSessionController( this );
         itsView.setProvider( this );
@@ -58,9 +62,30 @@ class SessionController
     public void 
     start()
     {
+        itsLogger.logInfo( "Starting session controller." );
         itsView.start();
     }
     
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public IMainSubController 
+    setSessionId(Long sessionId)
+    {
+        return this;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public IMainSubController 
+    setUserId(Long userId)
+    {
+        return this;
+    }
+
     /************************************************************************
      * {@inheritDoc} 
      */
@@ -92,6 +117,17 @@ class SessionController
     }
 
     /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public IMainSubController 
+    showView()
+    {
+        itsView.show();
+        return this;
+    }
+
+    /************************************************************************
      *  
      *
      */
@@ -112,6 +148,19 @@ class SessionController
             } );
         
         setCommand( 
+            "Logout",
+            new ICommand()
+            {
+                @Override
+                public void 
+                execute() 
+                    throws ExecutionException
+                {
+                    doLogout();
+                }
+            } );
+        
+        setCommand( 
             "Register",
             new ICommand()
             {
@@ -121,6 +170,19 @@ class SessionController
                     throws ExecutionException
                 {
                     doRegister();
+                }
+            } );        
+        
+        setCommand( 
+            "Exit",
+            new ICommand()
+            {
+                @Override
+                public void 
+                execute() 
+                    throws ExecutionException
+                {
+                    itsMainController.exit();
                 }
             } );        
     }
@@ -154,6 +216,17 @@ class SessionController
                     doHandleLogin((LoginEvent)event);
                 }
             } );
+        setHandler(
+            LogoutEvent.class,
+            new IHandler<IChangeEvent> ()
+            {
+                @Override
+                public void 
+                handle(IChangeEvent event)
+                {
+                    doHandleLogout((LogoutEvent)event);
+                }
+            } );
             
     }
     
@@ -164,9 +237,21 @@ class SessionController
     protected void
     doLogin()
     {
+        itsLogger.logInfo( "Performing login." );
         itsModel.login( itsView.getLoginCredential() );
     }
     
+    /************************************************************************
+     *  
+     *
+     */
+    protected void
+    doLogout()
+    {
+        itsLogger.logInfo( "Performing logout." );
+        itsModel.logout();
+    }
+
     /************************************************************************
      *  
      *
@@ -177,9 +262,31 @@ class SessionController
         ISessionModel sender = event.getSender( ISessionModel.class );
         
         if ( sender.isLoggedIn() )
+        {
+            itsLogger.logInfo( "Handling login event." );
+       
             itsMainController
                 .setSession( sender )
                 .completeLogin();
+        }
+        else
+            itsView.displayMessage( sender.getLoginError() );
+    }
+
+    /************************************************************************
+     *  
+     *
+     */
+    protected void
+    doHandleLogout(LogoutEvent event)
+    {
+        ISessionModel sender = event.getSender( ISessionModel.class );
+        
+        if ( !sender.isLoggedIn() )
+        {
+            itsLogger.logInfo( "Handling logout event." );
+       
+        }
         else
             itsView.displayMessage( sender.getLoginError() );
     }
@@ -191,6 +298,7 @@ class SessionController
     protected void
     doRegister()
     {
+        itsLogger.logInfo( "Peforming register." );
         itsModel.register( itsView.getRegisterCredential() );
     }
     
@@ -205,6 +313,7 @@ class SessionController
         
         if ( sender.isRegistered() )
         {
+            itsLogger.logInfo( "Handling register event." );
         }
         else
             itsView.displayMessage( sender.getLoginError() );

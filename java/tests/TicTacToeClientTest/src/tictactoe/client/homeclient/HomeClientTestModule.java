@@ -32,6 +32,18 @@ class HomeClientTestModule
         return FakeHomeController.class;
     }
 
+    @Override
+    protected Class<? extends IHomeView> getHomeViewType()
+    {
+        return null;
+    }
+
+    @Override
+    protected Class<? extends IHomeModel> getHomeModelType()
+    {
+        return null;
+    }
+
 }
 
 // ##########################################################################

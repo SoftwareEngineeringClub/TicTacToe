@@ -32,6 +32,7 @@ class LoginReply
 	{
 	    super( origRequest.getRequestId() );
 	    itsSessionId = 0L;
+	    itsUserId    = 0L;
 	}
 	
 	/************************************************************************
@@ -45,6 +46,7 @@ class LoginReply
 	{
 		super( origRequestId );
 		itsSessionId = sessionId;
+		itsUserId    = 0L;
 	}
 	
     /************************************************************************
@@ -123,7 +125,7 @@ class LoginReply
     public boolean
     isLoggedIn()
     {
-        return itsSessionId != 0;
+        return itsSessionId != 0L;
     }
 }
 

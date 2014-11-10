@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
@@ -34,6 +35,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -53,12 +56,12 @@ class SwtMainView
 {
     private ISwtDispatcher itsDispatcher;
     private Shell          itsShell;
-    private TabFolder      itsTabFolder;
-    private TabItem        itsFileTab;
-    private TabItem        itsHomeTab;
-    private TabItem        itsPlayersTab;
-    private TabItem        itsGameTab;
-    private TabItem        itsHelpTab;
+    private CTabFolder     itsTabFolder;
+    private CTabItem       itsFileTab;
+    private CTabItem       itsHomeTab;
+    private CTabItem       itsPlayersTab;
+    private CTabItem       itsGameTab;
+    private CTabItem       itsHelpTab;
 
     /************************************************************************
      * Creates a new SwtMainView. 
@@ -82,7 +85,14 @@ class SwtMainView
                 public void 
                 shellClosed(ShellEvent arg0) 
                 {
-                    System.exit( 0 );
+                    try
+                    {
+                        invoke( "Exit" );
+                    }
+                    catch (ExecutionException e)
+                    {
+                        displayMessage( e.getMessage() );
+                    }
                 }
             });
         itsShell.setText("Tic Tac Toe");
@@ -97,30 +107,63 @@ class SwtMainView
         RowLayout rl_itsShell = new RowLayout(SWT.HORIZONTAL);
         itsShell.setLayout(rl_itsShell);
         
-        itsTabFolder = new TabFolder(itsShell, SWT.NONE);
+        itsTabFolder = new CTabFolder(itsShell, SWT.BORDER);
+        itsTabFolder.setMinimumCharacters(30);
+        itsTabFolder.setSimple(false);
+        itsTabFolder.setBorderVisible(true);
+        itsTabFolder.setSelectionForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_LIGHT_SHADOW));
+        itsTabFolder.setSelectionBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND));
         itsTabFolder.setLayoutData(new RowData(740, 355));
         itsTabFolder.setBackgroundMode(SWT.INHERIT_DEFAULT);
         itsTabFolder.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_DARK_SHADOW));
         itsTabFolder.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
+        itsTabFolder.addSelectionListener( 
+            new SelectionAdapter() 
+            {
+                @Override
+                public void 
+                widgetSelected(SelectionEvent event)
+                {
+                    CTabItem selection = itsTabFolder.getSelection();
+                    
+                    try
+                    {
+                        if ( selection == itsFileTab )
+                            invoke( "SelectFile" );
+                        else if ( selection == itsHomeTab )
+                            invoke( "SelectHome" );
+                        else if ( selection == itsPlayersTab )
+                            invoke( "SelectPlayers" );
+                        else if ( selection == itsGameTab )
+                            invoke( "SelectGame" );
+                        else 
+                            invoke( "SelectHelp" );
+                    }
+                    catch (ExecutionException e)
+                    {
+                        displayMessage( "Error: " + e.getMessage() );
+                    }
+                }
+            } );
         
-        itsFileTab = new TabItem(itsTabFolder, SWT.NONE);
+        itsFileTab = new CTabItem(itsTabFolder, SWT.NONE);
         itsFileTab.setImage(SWTResourceManager.getImage(SwtMainView.class, "/resources/file-icon-small.png"));
         itsFileTab.setToolTipText("Login, Logout, Exit");
         itsFileTab.setText("File");
         
-        itsHomeTab = new TabItem(itsTabFolder, SWT.NONE);
+        itsHomeTab = new CTabItem(itsTabFolder, SWT.NONE);
         itsHomeTab.setImage(SWTResourceManager.getImage(SwtMainView.class, "/resources/home-icon-small.png"));
         itsHomeTab.setText("Home");
         
-        itsPlayersTab = new TabItem(itsTabFolder, SWT.NONE);
+        itsPlayersTab = new CTabItem(itsTabFolder, SWT.NONE);
         itsPlayersTab.setImage(SWTResourceManager.getImage(SwtMainView.class, "/resources/player-icon-small.png"));
         itsPlayersTab.setText("Players");
         
-        itsGameTab = new TabItem(itsTabFolder, SWT.NONE);
+        itsGameTab = new CTabItem(itsTabFolder, SWT.NONE);
         itsGameTab.setImage(SWTResourceManager.getImage(SwtMainView.class, "/resources/game-icon-small.png"));
         itsGameTab.setText("Game");
                 
-        itsHelpTab = new TabItem(itsTabFolder, SWT.NONE);
+        itsHelpTab = new CTabItem(itsTabFolder, SWT.NONE);
         itsHelpTab.setImage(SWTResourceManager.getImage(SwtMainView.class, "/resources/help-icon-small.png"));
         itsHelpTab.setText("Help");      
     }
@@ -190,31 +233,41 @@ class SwtMainView
      */
     @Override
     public IMainView 
-    setActiveTab(MainTabKind activeTab)
+    setActiveTab(final MainTabKind activeTab)
     {
-        switch ( activeTab )
-        {
-        case FILE_TAB:
-            itsTabFolder.setSelection( itsFileTab );
-            break;
-            
-        case HOME_TAB:
-            itsTabFolder.setSelection( itsHomeTab );
-            break;
-            
-        case PLAYERS_TAB:
-            itsTabFolder.setSelection( itsPlayersTab );
-            break;
-            
-        case GAME_TAB:
-            itsTabFolder.setSelection( itsGameTab );
-            break;
-            
-        case HELP_TAB:
-            itsTabFolder.setSelection( itsHelpTab );
-            break;
-        }
+        Runnable action = 
+            new Runnable()
+            {
+                @Override
+                public void 
+                run()
+                {
+                    switch ( activeTab )
+                    {
+                    case FILE_TAB:
+                        itsTabFolder.setSelection( itsFileTab );
+                        break;
+                        
+                    case HOME_TAB:
+                        itsTabFolder.setSelection( itsHomeTab );
+                        break;
+                        
+                    case PLAYERS_TAB:
+                        itsTabFolder.setSelection( itsPlayersTab );
+                        break;
+                        
+                    case GAME_TAB:
+                        itsTabFolder.setSelection( itsGameTab );
+                        break;
+                        
+                    case HELP_TAB:
+                        itsTabFolder.setSelection( itsHelpTab );
+                        break;
+                    }
+                }   
+            };
         
+        itsDispatcher.invokeAsynchronous( action );
         return this;
     }
 
@@ -249,7 +302,7 @@ class SwtMainView
      *
      * @return
      */
-    public TabFolder
+    public CTabFolder
     getTabFolder()
     {
         return itsTabFolder;
@@ -260,7 +313,7 @@ class SwtMainView
      *
      * @return
      */
-    public TabItem
+    public CTabItem
     getFileTab()
     {
         return itsFileTab;
@@ -271,7 +324,7 @@ class SwtMainView
      *
      * @return
      */
-    public TabItem
+    public CTabItem
     getHomeTab()
     {
         return itsHomeTab;
@@ -282,7 +335,7 @@ class SwtMainView
      *
      * @return
      */
-    public TabItem
+    public CTabItem
     getPlayersTab()
     {
         return itsPlayersTab;
@@ -293,11 +346,39 @@ class SwtMainView
      *
      * @return
      */
-    public TabItem
+    public CTabItem
     getGameTab()
     {
         return itsGameTab;
     }
+    
+    /************************************************************************
+     *  
+     *
+     * @param message
+     */
+    public void 
+    displayMessage(final String message)
+    {
+        Runnable action = 
+            new Runnable()
+            {
+                @Override
+                public void 
+                run()
+                {
+                    MessageBox dialog = 
+                        new MessageBox(new Shell(), SWT.ICON_ERROR | SWT.OK );
+                    
+                      dialog.setText("Error");
+                      dialog.setMessage(message);
+                      dialog.open();                     
+                }               
+            };
+            
+        itsDispatcher.invokeAsynchronous( action );
+    }
+
 }
 
 // ##########################################################################

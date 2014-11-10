@@ -14,6 +14,7 @@ import tictactoe.service.sessionservice.RegisterReply;
 import tictactoe.service.sessionservice.RegisterRequest;
 import tictactoe.service.sessionservice.SessionException;
 
+import strata1.common.logger.ILogger;
 import strata1.entity.repository.IRepositoryContext;
 import strata1.entity.repository.IUnitOfWork;
 import strata1.entity.repository.RepositoryException;
@@ -30,6 +31,7 @@ class SessionServiceImp
 {
     private final IRepositoryContext itsContext;
     private final ISessionProcessor  itsProcessor;
+    private final ILogger            itsLogger;
     
     /************************************************************************
      * Creates a new SessionServiceImp. 
@@ -41,10 +43,12 @@ class SessionServiceImp
     public 
     SessionServiceImp(
         IRepositoryContext context,
-        ISessionProcessor  processor)
+        ISessionProcessor  processor,
+        ILogger            logger)
     {
         itsContext   = context;
         itsProcessor = processor;
+        itsLogger    = logger;
     }
 
     /************************************************************************
@@ -62,16 +66,18 @@ class SessionServiceImp
             RegisterReply reply = itsProcessor.register( request );
             
             unitOfWork.commit();
+            itsLogger.logDebug( "Committed register request." );
             receiver.onRegister( reply );
         }
         catch (RepositoryException e1)
         {
-            receiver.onSessionException( new SessionException( e1 ) );
-            
+            itsLogger.logError( e1.getMessage() );
+            receiver.onSessionException( new SessionException( e1 ) );           
             rollback( unitOfWork );
         }
         catch (Throwable t)
         {
+            itsLogger.logError( t.getMessage() );
             receiver.onThrowable( t );
         }
     }
@@ -90,16 +96,18 @@ class SessionServiceImp
             LoginReply reply = itsProcessor.login( request );
             
             unitOfWork.commit();
+            itsLogger.logDebug( "Committed login request." );
             receiver.onLogin( reply );
         }
         catch (RepositoryException e1)
         {
-            receiver.onSessionException( new SessionException( e1 ) );
-            
+            itsLogger.logError( e1.getMessage() );
+            receiver.onSessionException( new SessionException( e1 ) );            
             rollback( unitOfWork );
         }
         catch (Throwable t)
         {
+            itsLogger.logError( t.getMessage() );
             receiver.onThrowable( t );
         }
     }
@@ -118,15 +126,18 @@ class SessionServiceImp
             LogoutReply reply = itsProcessor.logout( request );
             
             unitOfWork.commit();
+            itsLogger.logDebug( "Committed logout request." );
             receiver.onLogout( reply );
         }
         catch (RepositoryException e1)
         {
+            itsLogger.logError( e1.getMessage() );
             receiver.onSessionException( new SessionException( e1 ) );
             rollback( unitOfWork );
         }
         catch (Throwable t)
         {
+            itsLogger.logError( t.getMessage() );
             receiver.onThrowable( t );
             rollback( unitOfWork );
         }
@@ -146,7 +157,7 @@ class SessionServiceImp
         }
         catch (RollbackFailedException e2)
         {
-            // log exception
+            itsLogger.logError( e2.getMessage() );
         }
     }
 

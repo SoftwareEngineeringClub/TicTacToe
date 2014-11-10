@@ -13,6 +13,7 @@ import tictactoe.service.sessionservice.RegisterReply;
 import tictactoe.service.sessionservice.RegisterRequest;
 import tictactoe.service.sessionservice.SessionException;
 
+import strata1.common.logger.ILogger;
 import strata1.injector.container.IContainer;
 import strata1.integrator.messaging.IMessageSender;
 import strata1.integrator.messaging.IMessagingSession;
@@ -27,6 +28,7 @@ class SessionMessagingProxy
     extends    AbstractMessagingProxy<String,ISessionReplyReceiver>
     implements ISessionMessagingProxy
 {
+    private final ILogger itsLogger;
     
     /************************************************************************
      * Creates a new SessionMessagingProxy. 
@@ -43,7 +45,8 @@ class SessionMessagingProxy
             container.getInstance(IMessagingSession.class,"CommandSession"),
             container.getInstance(IMessagingSession.class,"EventSession"));
         
-        
+        itsLogger = container.getInstance( ILogger.class );
+        activate();
     }
 
     /************************************************************************
@@ -63,6 +66,8 @@ class SessionMessagingProxy
             .setPayload( request );
 
         insertPendingReceiver( correlationId,receiver);
+        itsLogger.logInfo( 
+            "Sending register request: " + request.getRequestId() );
         sender.send( message );
     }
 
@@ -83,6 +88,8 @@ class SessionMessagingProxy
             .setPayload( request );
 
         insertPendingReceiver( correlationId,receiver);
+        itsLogger.logInfo( 
+            "Sending login request: " + request.getRequestId() );
         sender.send( message );
     }
 
@@ -103,6 +110,8 @@ class SessionMessagingProxy
             .setPayload( request );
 
         insertPendingReceiver( correlationId,receiver);
+        itsLogger.logInfo( 
+            "Sending logout request: " + request.getRequestId() );
         sender.send( message );
     }
     

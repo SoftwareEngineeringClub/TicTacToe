@@ -14,7 +14,7 @@ interface IMainView
     extends IView
 {
     public IMainView 
-    setActiveTab(MainTabKind activeTab);
+    setActiveTab(final MainTabKind activeTab);
     
     public MainTabKind
     getActiveTab();

@@ -7,15 +7,21 @@ package tictactoe.desktopplatform.homedesktop;
 import tictactoe.client.homeclient.IHomeView;
 import tictactoe.client.mainclient.IMainView;
 import tictactoe.desktopplatform.maindesktop.SwtMainView;
+import tictactoe.service.playerservice.PlayerData;
 
+import strata1.client.shell.IDispatcher;
 import strata1.client.view.AbstractView;
 import strata1.swtclient.swtview.ISwtView;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Widget;
@@ -33,21 +39,22 @@ class SwtHomeView
     extends    AbstractView 
     implements IHomeView,ISwtView
 {
-    private TabFolder itsTabFolder;
-    private TabItem   itsHomeTab;
-    private Composite itsHomeComposite;
-    private Label     itsPlayerNameLabel;
-    private Label     itsPlayerNameValueLabel;
-    private Label     itsPlayerRankLabel;
-    private Label     itsPlayerRankValueLabel;
-    private Label     itsGamesPlayedLabel;
-    private Label     itsGamesPlayedValueLabel;
-    private Label     itsWinsLabel;
-    private Label     itsWinsValueLabel;
-    private Label     itsLossesLabel;
-    private Label     itsLossesValueLabel;
-    private Label     itsTiesLabel;
-    private Label     itsTiesValueLabel;
+    private IDispatcher itsDispatcher;
+    private CTabFolder  itsTabFolder;
+    private CTabItem    itsHomeTab;
+    private Composite   itsHomeComposite;
+    private Label       itsPlayerNameLabel;
+    private Label       itsPlayerNameValueLabel;
+    private Label       itsPlayerRankLabel;
+    private Label       itsPlayerRankValueLabel;
+    private Label       itsGamesPlayedLabel;
+    private Label       itsGamesPlayedValueLabel;
+    private Label       itsWinsLabel;
+    private Label       itsWinsValueLabel;
+    private Label       itsLossesLabel;
+    private Label       itsLossesValueLabel;
+    private Label       itsTiesLabel;
+    private Label       itsTiesValueLabel;
 
     /************************************************************************
      * Creates a new SwtHomeView. 
@@ -56,9 +63,10 @@ class SwtHomeView
      */
     @Inject
     public 
-    SwtHomeView(IMainView mainView)
+    SwtHomeView(IDispatcher dispatcher,IMainView mainView)
     {
         this(
+            dispatcher,
             ((SwtMainView)mainView).getTabFolder(),
             ((SwtMainView)mainView).getHomeTab() );
     }
@@ -71,9 +79,9 @@ class SwtHomeView
      * @param item
      */
     public 
-    SwtHomeView(TabFolder folder,TabItem item)
+    SwtHomeView(IDispatcher dispatcher,CTabFolder folder,CTabItem item)
     {
-        
+        itsDispatcher = dispatcher;
         itsTabFolder = folder;
         itsHomeTab   = item;
         
@@ -172,7 +180,16 @@ class SwtHomeView
     public void 
     hide()
     {
-        itsHomeComposite.setVisible( false );
+        itsDispatcher.invokeAsynchronous( 
+            new Runnable() 
+            {
+                @Override
+                public void 
+                run()
+                {
+                    itsHomeComposite.setVisible( false );
+              }
+            } );
     }
 
     /************************************************************************
@@ -182,7 +199,16 @@ class SwtHomeView
     public void 
     show()
     {
-        itsHomeComposite.setVisible( true );
+        itsDispatcher.invokeAsynchronous( 
+            new Runnable() 
+            {
+                @Override
+                public void 
+                run()
+                {
+                    itsHomeComposite.setVisible( true );
+              }
+            } );
     }
 
     /************************************************************************
@@ -228,9 +254,23 @@ class SwtHomeView
      */
     @Override
     public IHomeView 
-    setPlayerName(String playerName)
+    setPlayerData(final PlayerData playerData)
     {
-        itsPlayerNameValueLabel.setText( playerName );
+        itsDispatcher.invokeAsynchronous( 
+            new Runnable() 
+            {
+                @Override
+                public void 
+                run()
+                {
+                    itsPlayerNameValueLabel.setText( playerData.getUserName() );
+                    itsPlayerRankValueLabel.setText( playerData.getCurrentRank().toPlainString() );
+                    itsGamesPlayedValueLabel.setText( playerData.getGamesPlayed().toString() );
+                    itsWinsValueLabel.setText(  playerData.getWins().toString() );
+                    itsLossesValueLabel.setText( playerData.getLosses().toString() );
+                    itsTiesValueLabel.setText( playerData.getTies().toString() );
+              }
+            } );
         return this;
     }
 
@@ -238,56 +278,29 @@ class SwtHomeView
      * {@inheritDoc} 
      */
     @Override
-    public IHomeView 
-    setPlayerRank(BigDecimal playerRank)
+    public void 
+    displayError(final String message)
     {
-        itsPlayerRankValueLabel.setText( playerRank.toPlainString() );
-        return this;
+        Runnable action = 
+            new Runnable()
+            {
+                @Override
+                public void 
+                run()
+                {
+                    MessageBox dialog = 
+                        new MessageBox(new Shell(), SWT.ICON_ERROR | SWT.OK );
+                    
+                      dialog.setText("Error");
+                      dialog.setMessage(message);
+                      dialog.open();                     
+                }               
+            };
+            
+        itsDispatcher.invokeAsynchronous( action );
+        
     }
 
-    /************************************************************************
-     * {@inheritDoc} 
-     */
-    @Override
-    public IHomeView 
-    setGamesPlayed(Integer gamesPlayed)
-    {
-        itsGamesPlayedValueLabel.setText( gamesPlayed.toString() );
-        return this;
-    }
-
-    /************************************************************************
-     * {@inheritDoc} 
-     */
-    @Override
-    public IHomeView 
-    setWins(Integer wins)
-    {
-        itsWinsValueLabel.setText(  wins.toString() );
-        return this;
-    }
-
-    /************************************************************************
-     * {@inheritDoc} 
-     */
-    @Override
-    public IHomeView 
-    setLosses(Integer losses)
-    {
-        itsLossesValueLabel.setText( losses.toString() );
-        return this;
-    }
-
-    /************************************************************************
-     * {@inheritDoc} 
-     */
-    @Override
-    public IHomeView 
-    setTies(Integer ties)
-    {
-        itsTiesValueLabel.setText( ties.toString() );
-        return this;
-    }
  }
 
 // ##########################################################################

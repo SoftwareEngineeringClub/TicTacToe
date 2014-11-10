@@ -8,6 +8,7 @@ import tictactoe.service.sessionservice.ISessionReplyReceiver;
 import tictactoe.service.sessionservice.ISessionService;
 import tictactoe.service.sessionservice.LogoutRequest;
 
+import strata1.common.logger.ILogger;
 import strata1.common.task.AbstractTask;
 import strata1.injector.container.IContainer;
 
@@ -18,8 +19,9 @@ public
 class LogoutTask 
     extends AbstractTask
 {
-    private final IContainer    itsContainer;
-    private final LogoutRequest itsRequest;
+    private final IContainer            itsContainer;
+    private final LogoutRequest         itsRequest;
+    private final ISessionReplyReceiver itsReceiver;
     
     /************************************************************************
      * Creates a new LogoutTask. 
@@ -30,11 +32,13 @@ class LogoutTask
     public 
     LogoutTask(
         IContainer    container,
-        LogoutRequest request)
+        LogoutRequest request,
+        ISessionReplyReceiver receiver)
     {
         super( "LogoutTask" );
         itsContainer = container;
         itsRequest   = request;
+        itsReceiver  = receiver;
     }
 
     /************************************************************************
@@ -45,16 +49,19 @@ class LogoutTask
     execute()
     {
         ISessionService       service  = null;
-        ISessionReplyReceiver receiver = null;
+        ILogger               logger   = null;
        
         service = 
             itsContainer.getInstance( 
                 ISessionService.class,
                 "SessionServiceImplementation" );
-        receiver = 
-            itsContainer.getInstance( ISessionReplyReceiver.class );
-
-        service.logout( receiver,itsRequest );
+        logger = 
+            itsContainer.getInstance( ILogger.class );
+        
+        logger.logInfo( 
+            "Executing logout task for request: " + 
+            itsRequest.getRequestId() );
+        service.logout( itsReceiver,itsRequest );
     }
 
 }

@@ -32,7 +32,7 @@ class SessionReply
 	public 
 	SessionReply(long originatingRequestId)
 	{
-		this( theirGenerator.nextLong(),originatingRequestId );
+		this( generateId(),originatingRequestId );
 		itsMessage = "";
 	}
 
@@ -94,6 +94,20 @@ class SessionReply
 	{
 	    return itsMessage;
 	}
+	   
+    /************************************************************************
+     * Generates a random identifier. 
+     *
+     * @return
+     */
+    private static long
+    generateId()
+    {
+        long id = theirGenerator.nextLong();
+        
+        return id < 0 ? -id : id;
+    }
+
 }
 
 // ##########################################################################

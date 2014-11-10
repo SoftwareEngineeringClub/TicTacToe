@@ -8,6 +8,7 @@ import tictactoe.service.sessionservice.ISessionReplyReceiver;
 import tictactoe.service.sessionservice.ISessionService;
 import tictactoe.service.sessionservice.RegisterRequest;
 
+import strata1.common.logger.ILogger;
 import strata1.common.task.AbstractTask;
 import strata1.injector.container.IContainer;
 
@@ -18,8 +19,9 @@ public
 class RegisterTask 
     extends AbstractTask
 {
-    private final IContainer      itsContainer;
-    private final RegisterRequest itsRequest;
+    private final IContainer            itsContainer;
+    private final RegisterRequest       itsRequest;
+    private final ISessionReplyReceiver itsReceiver;
     
     /************************************************************************
      * Creates a new RegisterTask. 
@@ -28,12 +30,14 @@ class RegisterTask
      */
     public 
     RegisterTask(
-        IContainer      container,
-        RegisterRequest request)
+        IContainer            container,
+        RegisterRequest       request,
+        ISessionReplyReceiver receiver)
     {
         super( "RegisterTask" );
         itsContainer = container;
         itsRequest   = request;
+        itsReceiver  = receiver;
     }
 
     /************************************************************************
@@ -43,17 +47,20 @@ class RegisterTask
     public void 
     execute()
     {
-        ISessionService       service = null;
-        ISessionReplyReceiver receiver = null;
+        ISessionService       service  = null;
+        ILogger               logger   = null;
        
         service = 
             itsContainer.getInstance( 
                 ISessionService.class,
                 "SessionServiceImplementation" );
-        receiver = 
-            itsContainer.getInstance( ISessionReplyReceiver.class );
-
-        service.register( receiver,itsRequest );
+        logger = 
+            itsContainer.getInstance( ILogger.class );
+        
+        logger.logInfo( 
+            "Executing register task for request: " + 
+            itsRequest.getRequestId() );
+        service.register( itsReceiver,itsRequest );
     }
 
 }

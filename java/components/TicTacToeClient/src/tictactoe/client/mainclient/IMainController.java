@@ -30,6 +30,9 @@ interface IMainController
     
     public void
     completeLogin();
+    
+    public void
+    exit();
 }
 
 // ##########################################################################

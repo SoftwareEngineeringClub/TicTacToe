@@ -127,6 +127,11 @@ class FakeSessionModel
         return itsRegisteredFlag;
     }
 
+    @Override
+    public void logout()
+    {
+    }
+
 }
 
 // ##########################################################################

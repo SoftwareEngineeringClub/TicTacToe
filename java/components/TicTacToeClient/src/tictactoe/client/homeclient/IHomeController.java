@@ -4,14 +4,14 @@
 
 package tictactoe.client.homeclient;
 
-import strata1.client.controller.IController;
+import tictactoe.client.mainclient.IMainSubController;
 
 /****************************************************************************
  * 
  */
 public 
 interface IHomeController 
-    extends IController
+    extends IMainSubController
 {
 
 }
