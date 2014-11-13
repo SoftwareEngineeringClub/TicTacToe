@@ -77,6 +77,26 @@ class PlayersModel
      * {@inheritDoc} 
      */
     @Override
+    public Long 
+    getSessionId()
+    {
+        return itsSessionId;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public Long 
+    getUserId()
+    {
+        return itsUserId;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
     public List<PlayerData> 
     getPlayerData()
     {

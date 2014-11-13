@@ -154,6 +154,24 @@ class MainController
      */
     @Override
     public void 
+    completeLogout()
+    {
+        itsLogger.logInfo( "Completing logout." );
+        itsMainModel.setActiveTab(MainTabKind.FILE_TAB);
+        itsMainView.setActiveTab( itsMainModel.getActiveTab() );
+        itsHomeController
+            .setSessionId( 0L )
+            .setUserId( 0L );
+        itsPlayersController
+            .setSessionId( 0L )
+            .setUserId( 0L );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
     exit()
     {
         ICommand command = itsSessionController.getCommand( "Logout" );

@@ -22,6 +22,12 @@ interface IPlayersModel
 
     public IPlayersModel
     setUserId(Long userId);
+    
+    public Long
+    getSessionId();
+    
+    public Long
+    getUserId();
 
     public List<PlayerData>
     getPlayerData();

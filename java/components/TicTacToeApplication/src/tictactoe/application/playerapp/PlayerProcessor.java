@@ -76,12 +76,14 @@ class PlayerProcessor
     public ChallengePlayerReply 
     challengePlayer(ChallengePlayerRequest request)
     {
+        ChallengePlayerReply reply = new ChallengePlayerReply( request );
         
         itsLogger.logInfo( 
             "Processing challenge player request:" + request.getRequestId() + 
             " on thread: " + Thread.currentThread().getName() );
 
-        return null;
+        
+        return reply;
     }
 
     /************************************************************************

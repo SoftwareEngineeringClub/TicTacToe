@@ -285,7 +285,7 @@ class SessionController
         if ( !sender.isLoggedIn() )
         {
             itsLogger.logInfo( "Handling logout event." );
-       
+            itsMainController.completeLogout();
         }
         else
             itsView.displayMessage( sender.getLoginError() );

@@ -12,6 +12,7 @@ import tictactoe.service.playerservice.PlayerData;
 import strata1.client.command.ExecutionException;
 import strata1.client.shell.IDispatcher;
 import strata1.client.view.AbstractView;
+import strata1.swtclient.swtshell.ISwtDispatcher;
 import strata1.swtclient.swtview.ISwtView;
 
 import org.eclipse.swt.SWT;
@@ -19,9 +20,11 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
@@ -112,6 +115,31 @@ class SwtPlayersView
         itsPlayersTable.setBackground(SWTResourceManager.getColor(SWT.COLOR_INFO_BACKGROUND));
         itsPlayersTable.setHeaderVisible(true);
         itsPlayersTable.setLinesVisible(true);
+        itsPlayersTable.addSelectionListener( 
+            new SelectionAdapter() 
+            {
+
+                @Override
+                public void 
+                widgetSelected(SelectionEvent event)
+                {
+                    int       i = itsPlayersTable.getSelectionIndex();
+                    TableItem row = null;
+                    
+                    if ( i < 0 )
+                        itsChallengeButton.setEnabled( false );
+                    else
+                    {
+                        row = itsPlayersTable.getItem( i );
+                        
+                        if ( row.getText(1).equals( "ONLINE" ) )
+                            itsChallengeButton.setEnabled( true );
+                        else
+                            itsChallengeButton.setEnabled( false );
+                    }
+                }
+                
+            } );
 
         
         itsPlayerColumn = new TableColumn(itsPlayersTable, SWT.NONE);
@@ -146,6 +174,7 @@ class SwtPlayersView
         itsChallengeButton.setLayoutData(new RowData(70, SWT.DEFAULT));
         itsChallengeButton.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
         itsChallengeButton.setText("Challenge");
+        itsChallengeButton.setEnabled( false );
         itsChallengeButton.addSelectionListener( 
             new SelectionAdapter() 
             {
@@ -259,6 +288,9 @@ class SwtPlayersView
                 run()
                 {
                     TableItem row = new TableItem( itsPlayersTable,SWT.NONE);
+                    Display   display = ((ISwtDispatcher)itsDispatcher).getDisplay();
+                    Color     green = new Color(display,160,200,150 );
+                    Color     red   = new Color(display,230,150,150);
                     
                     row.setText( 0,playerData.getUserName() );
                     row.setText( 1,playerData.getStatus() );
@@ -267,6 +299,17 @@ class SwtPlayersView
                     row.setText( 4,playerData.getTies().toString() );
                     row.setText( 5,playerData.getCurrentRank().toPlainString() );
                     row.setText( 6,playerData.getAverageRank().toPlainString() );
+                    
+                    if ( playerData.getStatus().equals( "ONLINE" ) )
+                    {
+                        row.setBackground( 1,green );
+                        row.setGrayed( false );
+                    }
+                    else
+                    {
+                        row.setBackground( 1,red );
+                        row.setGrayed( false );
+                    }
                     
                     itsPlayerRows.add( row );
                 }

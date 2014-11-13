@@ -32,6 +32,9 @@ interface IMainController
     completeLogin();
     
     public void
+    completeLogout();
+    
+    public void
     exit();
 }
 

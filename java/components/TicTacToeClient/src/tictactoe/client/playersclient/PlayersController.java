@@ -137,11 +137,13 @@ class PlayersController
     doRefreshPlayerData(RefreshPlayersEvent event)
     {
         IPlayersModel model = event.getSender( IPlayersModel.class );
+        long          userId = model.getUserId();
         
         itsView.removePlayers();
         
-        for(PlayerData playerData : model.getPlayerData())      
-            itsView.insertPlayer( playerData );
+        for(PlayerData playerData : model.getPlayerData())
+            if ( playerData.getUserId() != userId )
+                itsView.insertPlayer( playerData );
         
         itsView.show();    
     }
