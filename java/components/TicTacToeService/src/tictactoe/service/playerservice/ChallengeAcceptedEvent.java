@@ -1,5 +1,5 @@
 // ##########################################################################
-// # File Name:	PlayerChangeEvent.java
+// # File Name:	ChallengeAcceptedEvent.java
 // ##########################################################################
 
 package tictactoe.service.playerservice;
@@ -8,61 +8,29 @@ package tictactoe.service.playerservice;
  * 
  */
 public 
-class PlayerChangeEvent 
+class ChallengeAcceptedEvent 
     extends PlayerEvent
 {
 
-    private static final long serialVersionUID = -6076282165878781632L;
-    private PlayerData        itsPlayerData;
-    private ChangeKind        itsChange;
+    private static final long serialVersionUID = -6170743132060664231L;
+    private final Long        itsOriginatingRequestId;
+    private final Long        itsChallengerUserId;
+    private final Long        itsChallengedUserId;
 
     /************************************************************************
-     * Creates a new PlayerChangeEvent. 
+     * Creates a new ChallengeAcceptedEvent. 
      *
      */
     public 
-    PlayerChangeEvent()
+    ChallengeAcceptedEvent(
+        Long origRequestId,
+        Long challengerUserId,
+        Long challengedUserId)
     {
         super();
-        itsPlayerData = null;
-        itsChange     = null;
-    }
-
-    /************************************************************************
-     *  
-     *
-     * @param playerData
-     * @return
-     */
-    public PlayerChangeEvent
-    setPlayerData(PlayerData playerData)
-    {
-        itsPlayerData = playerData;
-        return this;
-    }
-    
-    /************************************************************************
-     *  
-     *
-     * @param change
-     * @return
-     */
-    public PlayerChangeEvent
-    setChange(ChangeKind change)
-    {
-        itsChange = change;
-        return this;
-    }
-    
-    /************************************************************************
-     *  
-     *
-     * @return
-     */
-    public PlayerData
-    getPlayerData()
-    {
-        return itsPlayerData;
+        itsOriginatingRequestId = origRequestId;
+        itsChallengerUserId     = challengerUserId;
+        itsChallengedUserId     = challengedUserId;
     }
 
     /************************************************************************
@@ -70,10 +38,32 @@ class PlayerChangeEvent
      *
      * @return
      */
-    public ChangeKind
-    getChange()
+    public Long
+    getOriginatingRequestId()
     {
-        return itsChange;
+        return itsOriginatingRequestId;
+    }
+    
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    public Long
+    getChallengerUserId()
+    {
+        return itsChallengerUserId;
+    }
+    
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    public Long
+    getChallengedUserId()
+    {
+        return itsChallengedUserId;
     }
 }
 

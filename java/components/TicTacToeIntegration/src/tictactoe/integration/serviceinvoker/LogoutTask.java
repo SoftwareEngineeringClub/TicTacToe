@@ -4,6 +4,8 @@
 
 package tictactoe.integration.serviceinvoker;
 
+import tictactoe.service.playerservice.IPlayerEventListener;
+import tictactoe.service.playerservice.IPlayerNotifierHost;
 import tictactoe.service.sessionservice.ISessionReplyReceiver;
 import tictactoe.service.sessionservice.ISessionService;
 import tictactoe.service.sessionservice.LogoutRequest;
@@ -22,6 +24,7 @@ class LogoutTask
     private final IContainer            itsContainer;
     private final LogoutRequest         itsRequest;
     private final ISessionReplyReceiver itsReceiver;
+    private final IPlayerEventListener  itsNotifier;
     
     /************************************************************************
      * Creates a new LogoutTask. 
@@ -33,12 +36,14 @@ class LogoutTask
     LogoutTask(
         IContainer    container,
         LogoutRequest request,
-        ISessionReplyReceiver receiver)
+        ISessionReplyReceiver receiver,
+        IPlayerEventListener  notifier)
     {
         super( "LogoutTask" );
         itsContainer = container;
         itsRequest   = request;
         itsReceiver  = receiver;
+        itsNotifier  = notifier;
     }
 
     /************************************************************************
@@ -61,6 +66,8 @@ class LogoutTask
         logger.logInfo( 
             "Executing logout task for request: " + 
             itsRequest.getRequestId() );
+        
+        ((IPlayerNotifierHost)service).setPlayerNotifier( itsNotifier );
         service.logout( itsReceiver,itsRequest );
     }
 

@@ -8,5 +8,6 @@
 	<classpathentry kind="var" path="M2_REPO/strata1/StrataClient/1.0.0/StrataClient-1.0.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/strata1/StrataIntegrator/1.0.0/StrataIntegrator-1.0.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/javax/inject/javax.inject/1/javax.inject-1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/TicTacToeIntegration"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

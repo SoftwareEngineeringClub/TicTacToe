@@ -4,11 +4,16 @@
 
 package tictactoe.client.playersclient;
 
+import tictactoe.integration.playerproxy.IPlayerMessagingProxy;
+import tictactoe.service.playerservice.ChallengeAcceptedEvent;
+import tictactoe.service.playerservice.ChallengeDeclinedEvent;
 import tictactoe.service.playerservice.ChallengePlayerReply;
 import tictactoe.service.playerservice.GetPlayersReply;
 import tictactoe.service.playerservice.GetPlayersRequest;
+import tictactoe.service.playerservice.IPlayerEventListener;
 import tictactoe.service.playerservice.IPlayerReplyReceiver;
 import tictactoe.service.playerservice.IPlayerService;
+import tictactoe.service.playerservice.PlayerChangeEvent;
 import tictactoe.service.playerservice.PlayerData;
 import tictactoe.service.playerservice.PlayerException;
 
@@ -26,7 +31,7 @@ import java.util.List;
 public 
 class PlayersModel 
     extends    AbstractModel 
-    implements IPlayersModel,IPlayerReplyReceiver
+    implements IPlayersModel,IPlayerReplyReceiver,IPlayerEventListener
 {
     private final IPlayerService   itsService;
     private final ILogger          itsLogger;
@@ -47,6 +52,7 @@ class PlayersModel
         itsSessionId  = 0L;
         itsUserId     = 0L;
         itsPlayerData = new ArrayList<PlayerData>();
+        itsService.startListeningForEvents( this );
     }
 
     /************************************************************************
@@ -70,6 +76,7 @@ class PlayersModel
     {
         itsLogger.logDebug( "Setting players model userId = " + userId );
         itsUserId = userId;
+        ((IPlayerMessagingProxy)itsService).setUserId( itsUserId );
         return this;
     }
 
@@ -160,6 +167,36 @@ class PlayersModel
     onThrowable(Throwable throwable)
     {
         itsLogger.logError( throwable.getMessage() );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onPlayerChange(PlayerChangeEvent event)
+    {
+        itsLogger.logInfo(
+            "Receiving player change event: " + event.getEventId() );
+        refreshPlayerData();
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onChallengeAccepted(ChallengeAcceptedEvent event)
+    {
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onChallengeDeclined(ChallengeDeclinedEvent event)
+    {
     }
 
 }

@@ -1,18 +1,14 @@
 // ##########################################################################
-// # File Name:	SessionReplyReceiver.java
+// # File Name:	PlayerEventNotifier.java
 // ##########################################################################
 
-package tictactoe.integration.serviceinvoker;
+package tictactoe.integration.playernotifier;
 
-import tictactoe.service.playerservice.ChallengePlayerReply;
-import tictactoe.service.playerservice.GetPlayersReply;
-import tictactoe.service.playerservice.IPlayerReplyReceiver;
+import tictactoe.service.playerservice.ChallengeAcceptedEvent;
+import tictactoe.service.playerservice.ChallengeDeclinedEvent;
+import tictactoe.service.playerservice.IPlayerEventListener;
+import tictactoe.service.playerservice.PlayerChangeEvent;
 import tictactoe.service.playerservice.PlayerException;
-import tictactoe.service.sessionservice.ISessionReplyReceiver;
-import tictactoe.service.sessionservice.LoginReply;
-import tictactoe.service.sessionservice.LogoutReply;
-import tictactoe.service.sessionservice.RegisterReply;
-import tictactoe.service.sessionservice.SessionException;
 
 import strata1.common.logger.ILogger;
 import strata1.integrator.messaging.IMessageSender;
@@ -20,36 +16,31 @@ import strata1.integrator.messaging.IMessagingSession;
 import strata1.integrator.messaging.IObjectMessage;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /****************************************************************************
  * 
  */
 public 
-class PlayerReplyReceiver 
-    implements IPlayerReplyReceiver
+class PlayerEventNotifier 
+    implements IPlayerEventListener
 {
     private final IMessagingSession itsSession;
-    private final String            itsReplyChannelId;
-    private final String            itsReturnAddress;
-    private final String            itsCorrelationId;
+    private final String            itsEventChannelId;
     private final ILogger           itsLogger;
-    
+
     /************************************************************************
-     * Creates a new SessionReplyReceiver. 
+     * Creates a new PlayerEventNotifier. 
      *
      */
     public 
-    PlayerReplyReceiver(
+    PlayerEventNotifier(
         IMessagingSession session,
-        String            replyChannelId,
-        String            returnAddress,
-        String            correlationId,
+        String            eventChannelId,
         ILogger           logger)
     {
         itsSession        = session;
-        itsReplyChannelId = replyChannelId;
-        itsReturnAddress  = returnAddress;
-        itsCorrelationId  = correlationId;
+        itsEventChannelId = eventChannelId;
         itsLogger         = logger;
     }
 
@@ -58,12 +49,14 @@ class PlayerReplyReceiver
      */
     @Override
     public void 
-    onGetPlayers(GetPlayersReply reply)
+    onPlayerChange(PlayerChangeEvent event)
     {
         itsLogger.logInfo( 
-            "Sending get players reply: " + reply.getReplyId() + 
-            " for request: " + reply.getOriginatingRequestId() );
-        sendMessage( createMessage().setPayload( reply ) );
+            "Sending player change event: " + event.getEventId() );
+        sendMessage( 
+            createMessage()
+                .setStringProperty( "EventType","PlayerChangeEvent" )
+                .setPayload( event ) );
     }
 
     /************************************************************************
@@ -71,12 +64,33 @@ class PlayerReplyReceiver
      */
     @Override
     public void 
-    onChallengePlayer(ChallengePlayerReply reply)
+    onChallengeAccepted(ChallengeAcceptedEvent event)
     {
         itsLogger.logInfo( 
-            "Sending challenge player reply: " + reply.getReplyId() + 
-            " for request: " + reply.getOriginatingRequestId() );
-        sendMessage( createMessage().setPayload( reply ) );
+            "Sending challenge accepted event: " + event.getEventId() );
+        sendMessage( 
+            createMessage()
+                .setStringProperty( "EventType","ChallengeAcceptedEvent" )
+                .setLongProperty("Challenger",event.getChallengerUserId())
+                .setLongProperty("Challenged",event.getChallengedUserId())
+                .setPayload( event ) );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onChallengeDeclined(ChallengeDeclinedEvent event)
+    {
+        itsLogger.logInfo( 
+            "Sending challenge declined event: " + event.getEventId() );
+        sendMessage( 
+            createMessage()
+                .setStringProperty( "EventType","ChallengeDeclinedEvent" )
+                .setLongProperty("Challenger",event.getChallengerUserId())
+                .setLongProperty("Challenged",event.getChallengedUserId())
+                .setPayload( event ) );
     }
 
     /************************************************************************
@@ -86,23 +100,10 @@ class PlayerReplyReceiver
     public void 
     onPlayerException(PlayerException exception)
     {
-        itsLogger.logInfo( 
-            "Sending player exception: " + exception.getMessage() );
+        itsLogger.logInfo( "Sending player exception." );
         sendMessage( createMessage().setPayload( exception ) );
     }
-
-    /************************************************************************
-     * {@inheritDoc} 
-     */
-    @Override
-    public void 
-    onThrowable(Throwable throwable)
-    {
-        itsLogger.logInfo( 
-            "Sending throwable: " + throwable.getMessage() );
-        sendMessage( createMessage().setPayload( throwable ) );
-    }
-
+    
     /************************************************************************
      *  
      *
@@ -113,9 +114,7 @@ class PlayerReplyReceiver
     {
         return
             itsSession
-                .createObjectMessage()
-                .setReturnAddress( itsReturnAddress )
-                .setCorrelationId( itsCorrelationId );
+                .createObjectMessage();
     }
     
     /************************************************************************
@@ -127,11 +126,12 @@ class PlayerReplyReceiver
     sendMessage(IObjectMessage message)
     {
         IMessageSender sender = 
-            itsSession.createMessageSender( itsReplyChannelId );
+            itsSession.createMessageSender( itsEventChannelId );
         
         sender.setTimeToLive( 60*1000 );
         sender.send( message );
     }
+
 }
 
 // ##########################################################################

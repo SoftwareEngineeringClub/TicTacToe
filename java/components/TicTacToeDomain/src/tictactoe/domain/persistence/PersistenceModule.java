@@ -12,6 +12,7 @@ import tictactoe.domain.sessiondomain.IUserRepositoryProvider;
 import strata1.entity.repository.IRepositoryContext;
 import strata1.injector.container.AbstractModule;
 import strata1.injector.container.IContainer;
+import strata1.injector.container.SingletonScope;
 import strata1.injector.container.ThreadScope;
 
 import javax.inject.Provider;
@@ -47,7 +48,7 @@ class PersistenceModule
                 bindType( IRepositoryContext.class )
                     .toProvider( getRepositoryContextProvider() )
                     .withScope( 
-                        new ThreadScope<IRepositoryContext>() ) )
+                        new SingletonScope<IRepositoryContext>() ) )
             .insertBinding( 
                 bindType( ISessionRepositoryProvider.class )
                     .toType( getSessionRepositoryProviderType() )

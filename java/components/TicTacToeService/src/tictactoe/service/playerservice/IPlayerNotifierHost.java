@@ -1,21 +1,18 @@
 // ##########################################################################
-// # File Name:	ChangeListenerId.java
+// # File Name:	IPlayerNotifierHost.java
 // ##########################################################################
 
 package tictactoe.service.playerservice;
 
-import java.io.Serializable;
 
 /****************************************************************************
  * 
  */
 public 
-class ChangeListenerId 
-	implements Serializable
+interface IPlayerNotifierHost
 {
-
-	private static final long serialVersionUID	= -6503000859037422253L;
-
+    public void
+    setPlayerNotifier(IPlayerEventListener notifier);
 }
 
 // ##########################################################################

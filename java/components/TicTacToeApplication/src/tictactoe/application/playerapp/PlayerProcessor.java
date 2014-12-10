@@ -99,8 +99,12 @@ class PlayerProcessor
     getPlayer(GetPlayersReply reply,GetPlayersRequest request)
         throws NotUniqueException,InvalidInputException
     {
-        User   user   = itsUserRepository.getUser(request.getUserId());
-        Player player = itsPlayerRepository.getPlayerFor( user );
+        User   user   = null;
+        Player player = null;
+        
+        itsLogger.logDebug( "Getting single player." );
+        user   = itsUserRepository.getUser(request.getUserId());
+        player = itsPlayerRepository.getPlayerFor( user );
         
         itsLogger.logDebug( "Returning single player." );
         reply.insertPlayerData( 
@@ -130,6 +134,8 @@ class PlayerProcessor
     getPlayers(GetPlayersReply reply,GetPlayersRequest request)
         throws NotUniqueException,InvalidInputException
     {
+        itsLogger.logDebug( "Getting multiple players." );
+        
         for (User user : itsUserRepository.getUsers())
         {
             Player player = itsPlayerRepository.getPlayerFor( user );

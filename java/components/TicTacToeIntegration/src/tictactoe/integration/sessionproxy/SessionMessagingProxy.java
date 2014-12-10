@@ -19,13 +19,14 @@ import strata1.integrator.messaging.IMessageSender;
 import strata1.integrator.messaging.IMessagingSession;
 import strata1.integrator.messaging.IObjectMessage;
 import strata1.integrator.messagingproxy.AbstractMessagingProxy;
+import strata1.integrator.messagingproxy.RequestReplyMessagingProxy;
 
 /****************************************************************************
  * 
  */
 public 
 class SessionMessagingProxy 
-    extends    AbstractMessagingProxy<String,ISessionReplyReceiver>
+    extends    RequestReplyMessagingProxy<String,ISessionReplyReceiver>
     implements ISessionMessagingProxy
 {
     private final ILogger itsLogger;
@@ -41,9 +42,7 @@ class SessionMessagingProxy
             "Session-",
             container.getInstance(String.class,"RequestChannelId"),
             container.getInstance(String.class,"ReplyChannelId"),
-            container.getInstance(String.class,"EventChannelId"),
-            container.getInstance(IMessagingSession.class,"CommandSession"),
-            container.getInstance(IMessagingSession.class,"EventSession"));
+            container.getInstance(IMessagingSession.class,"CommandSession"));
         
         itsLogger = container.getInstance( ILogger.class );
         activate();
@@ -65,9 +64,10 @@ class SessionMessagingProxy
             .setStringProperty( "RequestType","RegisterRequest" )
             .setPayload( request );
 
-        insertPendingReceiver( correlationId,receiver);
+        insertReplyReceiver( correlationId,receiver);
         itsLogger.logInfo( 
             "Sending register request: " + request.getRequestId() );
+        sender.setTimeToLive( 60*1000 );
         sender.send( message );
     }
 
@@ -87,9 +87,10 @@ class SessionMessagingProxy
             .setStringProperty( "RequestType","LoginRequest" )
             .setPayload( request );
 
-        insertPendingReceiver( correlationId,receiver);
+        insertReplyReceiver( correlationId,receiver);
         itsLogger.logInfo( 
             "Sending login request: " + request.getRequestId() );
+        sender.setTimeToLive( 60*1000 );
         sender.send( message );
     }
 
@@ -109,9 +110,10 @@ class SessionMessagingProxy
             .setStringProperty( "RequestType","LogoutRequest" )
             .setPayload( request );
 
-        insertPendingReceiver( correlationId,receiver);
+        insertReplyReceiver( correlationId,receiver);
         itsLogger.logInfo( 
             "Sending logout request: " + request.getRequestId() );
+        sender.setTimeToLive( 60*1000 );
         sender.send( message );
     }
     
@@ -126,7 +128,7 @@ class SessionMessagingProxy
         Object                payload       = message.getPayload();
         ISessionReplyReceiver receiver      = null;
         
-        receiver = removePendingReceiver(correlationId);
+        receiver = removeReplyReceiver(correlationId);
         
         if ( payload instanceof RegisterReply )
             receiver.onRegister( (RegisterReply)payload );

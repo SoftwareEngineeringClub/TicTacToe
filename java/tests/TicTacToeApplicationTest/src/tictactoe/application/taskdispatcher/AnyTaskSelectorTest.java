@@ -57,9 +57,9 @@ class AnyTaskSelectorTest
     public void 
     testMatch()
     {
-        assertTrue( itsTarget.match( new RegisterTask(null,null,null) ));
-        assertTrue( itsTarget.match( new LoginTask(null,null,null) ));
-        assertTrue( itsTarget.match( new LogoutTask(null,null,null) ));
+        assertTrue( itsTarget.match( new RegisterTask(null,null,null,null) ));
+        assertTrue( itsTarget.match( new LoginTask(null,null,null,null) ));
+        assertTrue( itsTarget.match( new LogoutTask(null,null,null,null) ));
     }
 
     /**

@@ -4,6 +4,7 @@
 
 package tictactoe.application.sessionapp;
 
+import tictactoe.service.playerservice.PlayerChangeEvent;
 import tictactoe.service.sessionservice.LoginReply;
 import tictactoe.service.sessionservice.LoginRequest;
 import tictactoe.service.sessionservice.LogoutReply;
@@ -11,6 +12,7 @@ import tictactoe.service.sessionservice.LogoutRequest;
 import tictactoe.service.sessionservice.RegisterReply;
 import tictactoe.service.sessionservice.RegisterRequest;
 
+import strata1.common.utility.Pair;
 import strata1.entity.repository.RepositoryException;
 
 /****************************************************************************
@@ -29,7 +31,7 @@ interface ISessionProcessor
      * @throws  RepositoryException persistence exceptions
      * @throws  Exception all other exceptions
      */
-    public RegisterReply
+    public Pair<RegisterReply,PlayerChangeEvent>
     register(RegisterRequest request)
         throws RepositoryException, Exception;
     
@@ -42,7 +44,7 @@ interface ISessionProcessor
      * @throws  RepositoryException persistence exceptions
      * @throws  Exception all other exceptions
      */
-    public LoginReply
+    public Pair<LoginReply,PlayerChangeEvent>
     login(LoginRequest request) 
         throws RepositoryException, Exception;
     
@@ -55,7 +57,7 @@ interface ISessionProcessor
      * @throws  RepositoryException persistence exceptions
      * @throws  Exception all other exceptions
      */
-    public LogoutReply
+    public Pair<LogoutReply,PlayerChangeEvent>
     logout(LogoutRequest request) 
         throws RepositoryException, Exception;
 }

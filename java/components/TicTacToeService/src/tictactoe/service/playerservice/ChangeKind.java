@@ -1,5 +1,5 @@
 // ##########################################################################
-// # File Name:	IPlayerChangeListener.java
+// # File Name:	ChangeKind.java
 // ##########################################################################
 
 package tictactoe.service.playerservice;
@@ -8,10 +8,11 @@ package tictactoe.service.playerservice;
  * 
  */
 public 
-interface IPlayerChangeListener
+enum ChangeKind
 {
-	public void
-	onPlayerChange(PlayerChangeEvent event);
+    PLAYER_REGISTERED,
+    PLAYER_LOGGED_IN,
+    PLAYER_LOGGED_OUT
 }
 
 // ##########################################################################

@@ -4,31 +4,40 @@
 
 package tictactoe.integration.playerproxy;
 
+import tictactoe.service.playerservice.ChallengeAcceptedEvent;
+import tictactoe.service.playerservice.ChallengeDeclinedEvent;
 import tictactoe.service.playerservice.ChallengePlayerReply;
 import tictactoe.service.playerservice.ChallengePlayerRequest;
-import tictactoe.service.playerservice.ChangeListenerId;
 import tictactoe.service.playerservice.GetPlayersReply;
 import tictactoe.service.playerservice.GetPlayersRequest;
-import tictactoe.service.playerservice.IPlayerChangeListener;
+import tictactoe.service.playerservice.IPlayerEventListener;
 import tictactoe.service.playerservice.IPlayerReplyReceiver;
+import tictactoe.service.playerservice.PlayerChangeEvent;
+import tictactoe.service.playerservice.PlayerEvent;
+import tictactoe.service.playerservice.PlayerEventListenerId;
 import tictactoe.service.playerservice.PlayerException;
+import tictactoe.service.playerservice.PlayerReply;
 
 import strata1.common.logger.ILogger;
 import strata1.injector.container.IContainer;
 import strata1.integrator.messaging.IMessageSender;
 import strata1.integrator.messaging.IMessagingSession;
 import strata1.integrator.messaging.IObjectMessage;
-import strata1.integrator.messagingproxy.AbstractMessagingProxy;
+import strata1.integrator.messagingproxy.RequestReplyAndEventMessagingProxy;
 
 /****************************************************************************
  * 
  */
 public 
 class PlayerMessagingProxy 
-    extends    AbstractMessagingProxy<String,IPlayerReplyReceiver> 
+    extends    RequestReplyAndEventMessagingProxy<
+                   String,
+                   IPlayerReplyReceiver,
+                   IPlayerEventListener> 
     implements IPlayerMessagingProxy
 {
     private ILogger itsLogger;
+    private Long    itsUserId;
     
     /************************************************************************
      * Creates a new SessionMessagingProxy. 
@@ -46,6 +55,11 @@ class PlayerMessagingProxy
             container.getInstance(IMessagingSession.class,"EventSession"));
         
         itsLogger = container.getInstance( ILogger.class );
+        itsUserId = 0L;
+        
+        insertMessageReceiverForEventListeners( 
+            "EventType='PlayerChangeEvent'" );
+        
         activate();
     }
 
@@ -65,7 +79,7 @@ class PlayerMessagingProxy
             .setStringProperty( "RequestType","GetPlayersRequest" )
             .setPayload( request );
 
-        insertPendingReceiver( correlationId,receiver);
+        insertReplyReceiver( correlationId,receiver);
         itsLogger.logInfo( 
             "Sending get players request: " + request.getRequestId() );
         sender.send( message );
@@ -89,7 +103,8 @@ class PlayerMessagingProxy
             .setStringProperty( "RequestType","ChallengePlayerRequest" )
             .setPayload( request );
 
-        insertPendingReceiver( correlationId,receiver);
+        insertReplyReceiver( correlationId,receiver);
+        
         itsLogger.logInfo( 
             "Sending challenge player request: " + request.getRequestId() );
         sender.send( message );
@@ -99,10 +114,13 @@ class PlayerMessagingProxy
      * {@inheritDoc} 
      */
     @Override
-    public ChangeListenerId 
-    startListeningForChanges(IPlayerChangeListener listener)
+    public PlayerEventListenerId 
+    startListeningForEvents(IPlayerEventListener listener)
     {
-        return null;
+        PlayerEventListenerId id = new PlayerEventListenerId();
+        
+        insertEventListener( id.toString(),listener );
+        return id;
     }
 
     /************************************************************************
@@ -110,8 +128,9 @@ class PlayerMessagingProxy
      */
     @Override
     public void 
-    stopListeningForChanges(ChangeListenerId listenerId)
+    stopListeningForEvents(PlayerEventListenerId listenerId)
     {
+        removeEventListener( listenerId.toString() );
     }
     
     /************************************************************************
@@ -121,11 +140,60 @@ class PlayerMessagingProxy
     public void 
     onMessage(IObjectMessage message)
     {
-        String               correlationId = message.getCorrelationId();
+        Object payload = message.getPayload();
+
+        if ( payload instanceof PlayerReply )
+            onPlayerReply( message );
+        else if ( payload instanceof PlayerEvent )
+            onPlayerEvent( message );        
+        else 
+            new IllegalStateException("Unknown payload type.");
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public IPlayerMessagingProxy 
+    setUserId(Long userId)
+    {
+        String selector = 
+            "Challenger=" + itsUserId + " OR Challenged=" + itsUserId;
+        
+        if ( hasMessageReceiverForEventListeners( selector ) )
+            removeMessageReceiverForEventListeners( selector );
+        
+        itsUserId = userId;
+        
+        insertMessageReceiverForEventListeners(
+            "Challenger=" + itsUserId + " OR Challenged=" + itsUserId );
+        
+        return this;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public Long 
+    getUserId()
+    {
+        return itsUserId;
+    }
+
+    /************************************************************************
+     *  
+     *
+     * @param message
+     */
+    private void
+    onPlayerReply(IObjectMessage message)
+    {
         Object               payload       = message.getPayload();
+        String               correlationId = message.getCorrelationId();
         IPlayerReplyReceiver receiver      = null;
         
-        receiver = removePendingReceiver(correlationId);
+        receiver = removeReplyReceiver(correlationId);
         
         if ( payload instanceof GetPlayersReply )
             receiver.onGetPlayers( (GetPlayersReply)payload );
@@ -139,9 +207,36 @@ class PlayerMessagingProxy
             receiver.onThrowable( 
                 new IllegalStateException(
                     "CorrelationId=" + correlationId + 
-                    ": Unknown payload type.") );
+                    ": Unknown payload type.") );       
     }
-
+    
+    /************************************************************************
+     *  
+     *
+     * @param message
+     */
+    private void
+    onPlayerEvent(IObjectMessage message)
+    {
+        Object payload  = message.getPayload();
+        
+        if ( payload instanceof PlayerChangeEvent )
+            for (IPlayerEventListener listener : getEventListeners() )
+                listener.onPlayerChange( (PlayerChangeEvent)payload );
+        else if ( payload instanceof ChallengeAcceptedEvent )
+            for (IPlayerEventListener listener : getEventListeners() )
+                listener.onChallengeAccepted(
+                    (ChallengeAcceptedEvent)payload);
+        else if ( payload instanceof ChallengeDeclinedEvent )
+            for (IPlayerEventListener listener : getEventListeners() )
+                listener.onChallengeDeclined(
+                    (ChallengeDeclinedEvent)payload);
+        else
+            for (IPlayerEventListener listener : getEventListeners() )
+                listener.onPlayerException(
+                    new PlayerException("Unknown event type." ) );
+    }
+    
     /************************************************************************
      *  
      *

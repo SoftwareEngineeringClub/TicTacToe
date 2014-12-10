@@ -4,6 +4,11 @@
 
 package tictactoe.application.sessionapp;
 
+import tictactoe.service.playerservice.ChangeKind;
+import tictactoe.service.playerservice.IPlayerEventListener;
+import tictactoe.service.playerservice.IPlayerNotifierHost;
+import tictactoe.service.playerservice.PlayerChangeEvent;
+import tictactoe.service.playerservice.PlayerData;
 import tictactoe.service.sessionservice.ISessionReplyReceiver;
 import tictactoe.service.sessionservice.ISessionService;
 import tictactoe.service.sessionservice.LoginReply;
@@ -15,6 +20,7 @@ import tictactoe.service.sessionservice.RegisterRequest;
 import tictactoe.service.sessionservice.SessionException;
 
 import strata1.common.logger.ILogger;
+import strata1.common.utility.Pair;
 import strata1.entity.repository.IRepositoryContext;
 import strata1.entity.repository.IUnitOfWork;
 import strata1.entity.repository.RepositoryException;
@@ -22,16 +28,20 @@ import strata1.entity.repository.RollbackFailedException;
 
 import javax.inject.Inject;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /****************************************************************************
  * 
  */
 public 
 class SessionServiceImp 
-    implements ISessionService
+    implements ISessionService,IPlayerNotifierHost
 {
     private final IRepositoryContext itsContext;
     private final ISessionProcessor  itsProcessor;
     private final ILogger            itsLogger;
+    private IPlayerEventListener     itsPlayerNotifier;
     
     /************************************************************************
      * Creates a new SessionServiceImp. 
@@ -46,9 +56,10 @@ class SessionServiceImp
         ISessionProcessor  processor,
         ILogger            logger)
     {
-        itsContext   = context;
-        itsProcessor = processor;
-        itsLogger    = logger;
+        itsContext        = context;
+        itsProcessor      = processor;
+        itsLogger         = logger;
+        itsPlayerNotifier = null;
     }
 
     /************************************************************************
@@ -63,22 +74,28 @@ class SessionServiceImp
         
         try
         {
-            RegisterReply reply = itsProcessor.register( request );
+            Pair<RegisterReply,PlayerChangeEvent> pair = 
+                itsProcessor.register( request );
             
+            itsLogger.logDebug( "Committing register request." );
             unitOfWork.commit();
             itsLogger.logDebug( "Committed register request." );
-            receiver.onRegister( reply );
+            receiver.onRegister( pair.getFirst() );
+            
+            if ( pair.getSecond() != null )
+                itsPlayerNotifier.onPlayerChange( pair.getSecond() );
         }
         catch (RepositoryException e1)
         {
-            itsLogger.logError( e1.getMessage() );
-            receiver.onSessionException( new SessionException( e1 ) );           
+            itsLogger.logError( getStackTrace(e1) );
+            receiver.onSessionException( 
+                new SessionException( getStackTrace(e1) ) );           
             rollback( unitOfWork );
         }
         catch (Throwable t)
         {
-            itsLogger.logError( t.getMessage() );
-            receiver.onThrowable( t );
+            itsLogger.logError( getStackTrace(t) );
+            receiver.onThrowable( new Exception(getStackTrace(t)) );
         }
     }
 
@@ -93,22 +110,26 @@ class SessionServiceImp
         
         try
         {
-            LoginReply reply = itsProcessor.login( request );
+            Pair<LoginReply,PlayerChangeEvent> pair = 
+                itsProcessor.login( request );
             
+            itsLogger.logDebug( "Committing login request." );
             unitOfWork.commit();
             itsLogger.logDebug( "Committed login request." );
-            receiver.onLogin( reply );
+            receiver.onLogin( pair.getFirst() );
+            itsPlayerNotifier.onPlayerChange( pair.getSecond() );
         }
         catch (RepositoryException e1)
         {
-            itsLogger.logError( e1.getMessage() );
-            receiver.onSessionException( new SessionException( e1 ) );            
+            itsLogger.logError( getStackTrace(e1) );
+            receiver.onSessionException( 
+                new SessionException( getStackTrace(e1) ) );            
             rollback( unitOfWork );
         }
         catch (Throwable t)
         {
-            itsLogger.logError( t.getMessage() );
-            receiver.onThrowable( t );
+            itsLogger.logError( getStackTrace(t) );
+            receiver.onThrowable( new Exception(getStackTrace(t)) );
         }
     }
 
@@ -123,24 +144,38 @@ class SessionServiceImp
         
         try
         {
-            LogoutReply reply = itsProcessor.logout( request );
+            Pair<LogoutReply,PlayerChangeEvent> pair = 
+                itsProcessor.logout( request );
             
+            itsLogger.logDebug( "Committing logout request." );
             unitOfWork.commit();
             itsLogger.logDebug( "Committed logout request." );
-            receiver.onLogout( reply );
+            receiver.onLogout( pair.getFirst() );
+            itsPlayerNotifier.onPlayerChange( pair.getSecond() );
         }
         catch (RepositoryException e1)
         {
-            itsLogger.logError( e1.getMessage() );
-            receiver.onSessionException( new SessionException( e1 ) );
+            itsLogger.logError( getStackTrace(e1) );
+            receiver.onSessionException( 
+                new SessionException( getStackTrace(e1) ) );
             rollback( unitOfWork );
         }
         catch (Throwable t)
         {
-            itsLogger.logError( t.getMessage() );
-            receiver.onThrowable( t );
+            itsLogger.logError(getStackTrace(t));
+            receiver.onThrowable( new Exception(getStackTrace(t)) );
             rollback( unitOfWork );
         }
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    setPlayerNotifier(IPlayerEventListener notifier)
+    {
+        itsPlayerNotifier = notifier;
     }
 
     /************************************************************************
@@ -159,6 +194,22 @@ class SessionServiceImp
         {
             itsLogger.logError( e2.getMessage() );
         }
+    }
+
+    /************************************************************************
+     *  
+     *
+     * @param t
+     * @return
+     */
+    private String 
+    getStackTrace(Throwable t)
+    {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter  printWriter  = new PrintWriter(stringWriter);
+        
+        t.printStackTrace( printWriter );
+        return stringWriter.toString();
     }
 
 }

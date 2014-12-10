@@ -4,15 +4,18 @@
 
 package tictactoe.domain.sessiondomain;
 
+import strata1.common.datetime.DateTime;
+
 /****************************************************************************
  * 
  */
 public 
 class Session
 {
-	private Long    itsSessionId;
-	private Integer itsVersion;
-	private Long    itsUserId;
+	private Long     itsSessionId;
+	private Integer  itsVersion;
+	private Long     itsUserId;
+	private DateTime itsLastHeartbeat;
 	
 	/************************************************************************
 	 * Creates a new Session. 
@@ -21,9 +24,10 @@ class Session
 	public 
 	Session()
 	{
-		itsSessionId = new Long(0);
-		itsVersion   = new Integer(0);
-		itsUserId    = new Long(0);
+		itsSessionId     = new Long(0);
+		itsVersion       = new Integer(0);
+		itsUserId        = new Long(0);
+		itsLastHeartbeat = new DateTime();
 	}
 
 	/************************************************************************
@@ -34,9 +38,10 @@ class Session
 	public 
 	Session(Session other)
 	{
-	    itsSessionId = new Long(other.itsSessionId);
-	    itsVersion   = new Integer(other.itsVersion);
-	    itsUserId    = new Long(other.itsUserId);
+	    itsSessionId     = new Long(other.itsSessionId);
+	    itsVersion       = new Integer(other.itsVersion);
+	    itsUserId        = new Long(other.itsUserId);
+	    itsLastHeartbeat = new DateTime(other.itsLastHeartbeat);
 	}
 	
 	/************************************************************************
@@ -75,6 +80,17 @@ class Session
 	/************************************************************************
 	 *  
 	 *
+	 * @param lastHeartbeat
+	 */
+	public void
+	setLastHeartbeat(DateTime lastHeartbeat)
+	{
+	    itsLastHeartbeat = lastHeartbeat;
+	}
+	
+	/************************************************************************
+	 *  
+	 *
 	 * @return
 	 */
 	public Long 
@@ -103,6 +119,17 @@ class Session
 	getUserId()
 	{
 		return itsUserId;
+	}
+	
+	/************************************************************************
+	 *  
+	 *
+	 * @return
+	 */
+	public DateTime
+	getLastHeartbeat()
+	{
+	    return itsLastHeartbeat;
 	}
 }
 

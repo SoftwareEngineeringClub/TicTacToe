@@ -97,6 +97,7 @@ class TicTacToeDesktopStartStopController
     doStartUp()
     {  
         IMessagingSession  commandSession    = null;
+        IMessagingSession  eventSession      = null;
         ISessionService    sessionService    = null;
         IPlayerService     playerService     = null;
         IMainController    mainController    = null;
@@ -106,6 +107,7 @@ class TicTacToeDesktopStartStopController
         IGameController    gameController    = null;
         
         commandSession = itsContainer.getInstance( IMessagingSession.class,"CommandSession" );
+        eventSession = itsContainer.getInstance( IMessagingSession.class,"EventSession" );
         sessionService = itsContainer.getInstance( ISessionService.class );
         mainController = itsContainer.getInstance(IMainController.class);
         sessionController = itsContainer.getInstance(ISessionController.class);
@@ -131,6 +133,7 @@ class TicTacToeDesktopStartStopController
             throw new NullPointerException("GameController is null.");
 
         commandSession.startReceiving();
+        eventSession.startReceiving();
         mainController.start();   
     }
 }

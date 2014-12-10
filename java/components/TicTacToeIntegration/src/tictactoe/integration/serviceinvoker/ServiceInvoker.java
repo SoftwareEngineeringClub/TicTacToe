@@ -4,8 +4,10 @@
 
 package tictactoe.integration.serviceinvoker;
 
+import tictactoe.integration.playernotifier.PlayerEventNotifier;
 import tictactoe.service.playerservice.ChallengePlayerRequest;
 import tictactoe.service.playerservice.GetPlayersRequest;
+import tictactoe.service.playerservice.IPlayerEventListener;
 import tictactoe.service.playerservice.IPlayerReplyReceiver;
 import tictactoe.service.playerservice.PlayerRequest;
 import tictactoe.service.sessionservice.ISessionReplyReceiver;
@@ -41,7 +43,9 @@ class ServiceInvoker
     private final IContainer        itsContainer;
     private final String            itsRequestChannel;
     private final String            itsReplyChannel;
-    private final IMessagingSession itsSession;
+    private final String            itsEventChannel;
+    private final IMessagingSession itsCommandSession;
+    private final IMessagingSession itsEventSession;
     private final ILogger           itsLogger;
     private IMessageReceiver        itsReceiver;
     
@@ -52,17 +56,23 @@ class ServiceInvoker
     public 
     ServiceInvoker(
         IContainer container,
-        String     session,
+        String     commandSession,
         String     requestChannelId,
-        String     replyChannelId)
+        String     replyChannelId,
+        String     eventSession,
+        String     eventChannelId)
     {        
         itsContainer = container;
         itsRequestChannel = 
             itsContainer.getInstance( String.class,requestChannelId );
         itsReplyChannel = 
             itsContainer.getInstance( String.class,replyChannelId );
-        itsSession  = 
-            itsContainer.getInstance( IMessagingSession.class,session );
+        itsEventChannel = 
+            itsContainer.getInstance( String.class,eventChannelId );
+        itsCommandSession  = 
+            itsContainer.getInstance( IMessagingSession.class,commandSession );
+        itsEventSession  = 
+            itsContainer.getInstance( IMessagingSession.class,eventSession );
         itsLogger = 
             itsContainer.getInstance(  ILogger.class );
         itsReceiver = null;
@@ -82,7 +92,7 @@ class ServiceInvoker
             if ( itsReceiver == null )
             {
                 itsReceiver = 
-                    itsSession.createMessageReceiver( itsRequestChannel );
+                    itsCommandSession.createMessageReceiver(itsRequestChannel);
                 itsReceiver.setListener( this );
             }
             
@@ -186,12 +196,16 @@ class ServiceInvoker
         Long   requestId = ((SessionRequest)payload).getRequestId();
         ISessionReplyReceiver receiver = 
             new SessionReplyReceiver(
-                itsSession,
+                itsCommandSession,
                 itsReplyChannel,
                 message.getReturnAddress(),
                 message.getCorrelationId(),
                 itsLogger); 
-        
+        IPlayerEventListener notifier = 
+            new PlayerEventNotifier(
+                itsEventSession,
+                itsEventChannel,
+                itsLogger);
         itsLogger.logInfo( 
             "Receiving message: " + message.getMessageId() );
         
@@ -204,7 +218,8 @@ class ServiceInvoker
                     new RegisterTask(
                         itsContainer,
                         (RegisterRequest)payload,
-                        receiver ) );
+                        receiver,
+                        notifier) );
         }
         else if ( payload instanceof LoginRequest )
         {
@@ -214,7 +229,8 @@ class ServiceInvoker
                     new LoginTask(
                         itsContainer,
                         (LoginRequest)payload,
-                        receiver ) );
+                        receiver,
+                        notifier ) );
         }
         else if ( payload instanceof LogoutRequest )
         {
@@ -224,7 +240,8 @@ class ServiceInvoker
                     new LogoutTask(
                         itsContainer,
                         (LogoutRequest)payload,
-                        receiver ) );
+                        receiver,
+                        notifier ) );
         }
         else
         {
@@ -246,7 +263,7 @@ class ServiceInvoker
         Long   requestId = ((PlayerRequest)payload).getRequestId();
         IPlayerReplyReceiver receiver = 
             new PlayerReplyReceiver(
-                itsSession,
+                itsCommandSession,
                 itsReplyChannel,
                 message.getReturnAddress(),
                 message.getCorrelationId(),

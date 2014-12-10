@@ -6,10 +6,10 @@ package tictactoe.application.playerapp;
 
 import tictactoe.service.playerservice.ChallengePlayerReply;
 import tictactoe.service.playerservice.ChallengePlayerRequest;
-import tictactoe.service.playerservice.ChangeListenerId;
+import tictactoe.service.playerservice.PlayerEventListenerId;
 import tictactoe.service.playerservice.GetPlayersReply;
 import tictactoe.service.playerservice.GetPlayersRequest;
-import tictactoe.service.playerservice.IPlayerChangeListener;
+import tictactoe.service.playerservice.IPlayerEventListener;
 import tictactoe.service.playerservice.IPlayerReplyReceiver;
 import tictactoe.service.playerservice.IPlayerService;
 import tictactoe.service.playerservice.PlayerException;
@@ -65,6 +65,7 @@ class PlayerServiceImp
         {
             GetPlayersReply reply = itsProcessor.getPlayers( request );
             
+            itsLogger.logDebug( "Committing get players request." );
             unitOfWork.commit();
             itsLogger.logDebug( "Committed get players request." );
             receiver.onGetPlayers( reply );
@@ -72,7 +73,7 @@ class PlayerServiceImp
         catch (RepositoryException e1)
         {
             itsLogger.logError( e1.getMessage() );
-            receiver.onPlayerException( new PlayerException( e1 ) );           
+            receiver.onPlayerException( new PlayerException( e1.getMessage() ) );           
             rollback( unitOfWork );
         }
         catch (Throwable t)
@@ -82,7 +83,7 @@ class PlayerServiceImp
             
             t.printStackTrace( output );
             itsLogger.logError( writer.toString() );
-            receiver.onThrowable( t );
+            receiver.onThrowable( new Exception(t.getMessage()) );
         }
     }
 
@@ -101,20 +102,22 @@ class PlayerServiceImp
         {
             ChallengePlayerReply reply = itsProcessor.challengePlayer( request );
             
+            itsLogger.logDebug( "Committing challenge player request." );
             unitOfWork.commit();
             itsLogger.logDebug( "Committed challenge player request." );
             receiver.onChallengePlayer( reply );
         }
         catch (RepositoryException e1)
         {
-            itsLogger.logError( e1.getMessage() );
-            receiver.onPlayerException( new PlayerException( e1 ) );           
+            itsLogger.logError( getStackTrace(e1) );
+            receiver.onPlayerException( 
+                new PlayerException( getStackTrace(e1) ) );           
             rollback( unitOfWork );
         }
         catch (Throwable t)
         {
-            itsLogger.logError( t.getMessage() );
-            receiver.onThrowable( t );
+            itsLogger.logError( getStackTrace(t) );
+            receiver.onThrowable( new Exception(getStackTrace(t)) );
         }
     }
 
@@ -122,8 +125,8 @@ class PlayerServiceImp
      * {@inheritDoc} 
      */
     @Override
-    public ChangeListenerId 
-    startListeningForChanges(IPlayerChangeListener listener)
+    public PlayerEventListenerId 
+    startListeningForEvents(IPlayerEventListener listener)
     {
         return null;
     }
@@ -133,7 +136,7 @@ class PlayerServiceImp
      */
     @Override
     public void 
-    stopListeningForChanges(ChangeListenerId listenerId)
+    stopListeningForEvents(PlayerEventListenerId listenerId)
     {
     }
 
@@ -155,6 +158,21 @@ class PlayerServiceImp
         }
     }
 
+    /************************************************************************
+     *  
+     *
+     * @param t
+     * @return
+     */
+    private String 
+    getStackTrace(Throwable t)
+    {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter  printWriter  = new PrintWriter(stringWriter);
+        
+        t.printStackTrace( printWriter );
+        return stringWriter.toString();
+    }
 }
 
 // ##########################################################################

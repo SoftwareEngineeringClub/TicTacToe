@@ -13,6 +13,13 @@ import strata1.integrator.messagingproxy.IMessagingProxy;
  */
 public 
 interface IPlayerMessagingProxy 
-    extends IPlayerService,IMessagingProxy {}
+    extends IPlayerService,IMessagingProxy 
+{
+    public IPlayerMessagingProxy
+    setUserId(Long userId);
+    
+    public Long
+    getUserId();
+}
 
 // ##########################################################################

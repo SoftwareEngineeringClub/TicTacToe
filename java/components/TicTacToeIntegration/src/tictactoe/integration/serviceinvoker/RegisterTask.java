@@ -4,6 +4,8 @@
 
 package tictactoe.integration.serviceinvoker;
 
+import tictactoe.service.playerservice.IPlayerEventListener;
+import tictactoe.service.playerservice.IPlayerNotifierHost;
 import tictactoe.service.sessionservice.ISessionReplyReceiver;
 import tictactoe.service.sessionservice.ISessionService;
 import tictactoe.service.sessionservice.RegisterRequest;
@@ -22,6 +24,7 @@ class RegisterTask
     private final IContainer            itsContainer;
     private final RegisterRequest       itsRequest;
     private final ISessionReplyReceiver itsReceiver;
+    private final IPlayerEventListener  itsNotifier;
     
     /************************************************************************
      * Creates a new RegisterTask. 
@@ -32,12 +35,14 @@ class RegisterTask
     RegisterTask(
         IContainer            container,
         RegisterRequest       request,
-        ISessionReplyReceiver receiver)
+        ISessionReplyReceiver receiver,
+        IPlayerEventListener  notifier)
     {
         super( "RegisterTask" );
         itsContainer = container;
         itsRequest   = request;
         itsReceiver  = receiver;
+        itsNotifier  = notifier;
     }
 
     /************************************************************************
@@ -60,6 +65,8 @@ class RegisterTask
         logger.logInfo( 
             "Executing register task for request: " + 
             itsRequest.getRequestId() );
+        
+        ((IPlayerNotifierHost)service).setPlayerNotifier( itsNotifier );
         service.register( itsReceiver,itsRequest );
     }
 

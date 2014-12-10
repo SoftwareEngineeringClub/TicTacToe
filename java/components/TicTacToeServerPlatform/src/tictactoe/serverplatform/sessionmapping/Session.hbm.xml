@@ -23,6 +23,11 @@
    		    name="UserId" 
    		    column="UserId"
    		    type="java.lang.Long"/>
+   		<property 
+   			generated="never" 
+   			lazy="false" 
+   			name="LastHeartbeat" 
+   			type="strata1.entity.hibernaterepository.DateTimeType"/>
 
    		<query 
    		    fetch-size="100" name="getSessions" read-only="true">select s from Session s</query>

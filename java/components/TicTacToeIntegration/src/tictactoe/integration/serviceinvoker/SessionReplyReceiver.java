@@ -138,6 +138,7 @@ class SessionReplyReceiver
         IMessageSender sender = 
             itsSession.createMessageSender( itsReplyChannelId );
         
+        sender.setTimeToLive( 60*1000 );
         sender.send( message );
     }
 }

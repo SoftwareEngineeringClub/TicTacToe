@@ -15,25 +15,32 @@ class ServiceInvokerProvider
     implements IServiceInvokerProvider
 {
     private final IContainer itsContainer;
-    private final String     itsSession;
+    private final String     itsCommandSession;
     private final String     itsRequestChannelId;
     private final String     itsReplyChannelId;
+    private final String     itsEventSession;
+    private final String     itsEventChannelId;
     
     /************************************************************************
      * Creates a new ServiceInvokerProvider. 
+     * @param eventChannelId TODO
      *
      */
     public 
     ServiceInvokerProvider(
         IContainer container,
-        String     session,
+        String     commandSession,
         String     requestChannelId,
-        String     replyChannelId)
+        String     replyChannelId, 
+        String     eventSession,
+        String     eventChannelId)
     {
         itsContainer        = container;
-        itsSession          = session;
+        itsCommandSession   = commandSession;
         itsRequestChannelId = requestChannelId;
         itsReplyChannelId   = replyChannelId;
+        itsEventSession     = eventSession;
+        itsEventChannelId   = eventChannelId;
     }
 
     /************************************************************************
@@ -46,9 +53,11 @@ class ServiceInvokerProvider
         return 
             new ServiceInvoker(
                 itsContainer,
-                itsSession,
+                itsCommandSession,
                 itsRequestChannelId,
-                itsReplyChannelId);
+                itsReplyChannelId,
+                itsEventSession,
+                itsEventChannelId);
     }
 
 }

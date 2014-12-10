@@ -4,6 +4,8 @@
 
 package tictactoe.integration.serviceinvoker;
 
+import tictactoe.service.playerservice.IPlayerEventListener;
+import tictactoe.service.playerservice.IPlayerNotifierHost;
 import tictactoe.service.sessionservice.ISessionReplyReceiver;
 import tictactoe.service.sessionservice.ISessionService;
 import tictactoe.service.sessionservice.LoginRequest;
@@ -22,6 +24,7 @@ class LoginTask
     private final IContainer            itsContainer;
     private final LoginRequest          itsRequest;
     private final ISessionReplyReceiver itsReceiver;
+    private final IPlayerEventListener  itsNotifier;
     
     /************************************************************************
      * Creates a new LoginTask. 
@@ -33,12 +36,14 @@ class LoginTask
     LoginTask(
         IContainer            container,
         LoginRequest          request,
-        ISessionReplyReceiver receiver)
+        ISessionReplyReceiver receiver,
+        IPlayerEventListener  notifier)
     {
         super( "LoginTask" );
         itsContainer = container;
         itsRequest   = request;
         itsReceiver  = receiver;
+        itsNotifier  = notifier;
     }
 
     /************************************************************************
@@ -61,6 +66,8 @@ class LoginTask
         logger.logInfo( 
             "Executing login task for request: " + 
             itsRequest.getRequestId() );        
+        
+        ((IPlayerNotifierHost)service).setPlayerNotifier( itsNotifier );
         service.login( itsReceiver,itsRequest );
     }
 

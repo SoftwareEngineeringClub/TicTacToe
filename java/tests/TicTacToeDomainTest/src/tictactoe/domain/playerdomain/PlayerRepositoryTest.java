@@ -200,8 +200,21 @@ class PlayerRepositoryTest
             .commit();
         itsPlayerIds.add( expected.getPlayerId() );
 
+        expected.setStatus( PlayerStatus.ONLINE );
         expected.incrementWins();
         actual = itsTarget.updatePlayer( expected );
+        itsTarget
+            .getUnitOfWork()
+            .commit();
+        
+        assertEquals( expected.getUserId(),actual.getUserId() );
+        assertEquals( expected.getWins(),actual.getWins() );
+        assertEquals( expected.getLosses(),actual.getLosses() );
+        assertEquals( expected.getTies(),actual.getTies() );
+        assertEquals( expected.getCurrentRank(),actual.getCurrentRank() );
+        assertEquals( expected.getAverageRank(),actual.getAverageRank() );   
+        
+        actual = itsTarget.getPlayer( actual.getPlayerId() );
         
         assertEquals( expected.getUserId(),actual.getUserId() );
         assertEquals( expected.getWins(),actual.getWins() );

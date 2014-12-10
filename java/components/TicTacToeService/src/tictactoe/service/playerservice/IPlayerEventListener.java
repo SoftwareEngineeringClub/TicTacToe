@@ -1,5 +1,5 @@
 // ##########################################################################
-// # File Name:	IPlayerService.java
+// # File Name:	IPlayerEventListener.java
 // ##########################################################################
 
 package tictactoe.service.playerservice;
@@ -8,20 +8,19 @@ package tictactoe.service.playerservice;
  * 
  */
 public 
-interface IPlayerService
+interface IPlayerEventListener
 {
 	public void
-	getPlayers(IPlayerReplyReceiver reply,GetPlayersRequest request);
+	onPlayerChange(PlayerChangeEvent event);
 	
 	public void
-	challengePlayer(IPlayerReplyReceiver reply,ChallengePlayerRequest request);
-	
-	public PlayerEventListenerId
-	startListeningForEvents(IPlayerEventListener listener);
+	onChallengeAccepted(ChallengeAcceptedEvent event);
 	
 	public void
-	stopListeningForEvents(PlayerEventListenerId listenerId);
+	onChallengeDeclined(ChallengeDeclinedEvent event);
 	
+	public void
+	onPlayerException(PlayerException exception);
 }
 
 // ##########################################################################
