@@ -4,6 +4,7 @@
 
 package tictactoe.server.bootstrap;
 
+import tictactoe.application.timer.DeadSessionTimer;
 import tictactoe.integration.serviceinvoker.ServiceInvoker;
 
 import strata1.common.task.ITaskDispatcher;
@@ -56,6 +57,7 @@ class TicTacToeServerStartStopController
         ITaskDispatcher   dispatcher = null;
         ServiceInvoker    invoker1   = null;
         ServiceInvoker    invoker2   = null;
+        DeadSessionTimer  timer      = null;
         
         session1 = 
             itsContainer.getInstance(
@@ -72,12 +74,15 @@ class TicTacToeServerStartStopController
             itsContainer.getInstance(ServiceInvoker.class,"ServiceInvoker1");
         invoker2 = 
             itsContainer.getInstance(ServiceInvoker.class,"ServiceInvoker2");
+        timer = 
+            itsContainer.getInstance( DeadSessionTimer.class );
         
         session1.startReceiving();
         session2.startReceiving();
         dispatcher.startDispatching();
         invoker1.startProducing();
-        invoker2.startProducing();        
+        invoker2.startProducing();
+        timer.startProducing();
     }
 
     /************************************************************************
@@ -87,9 +92,10 @@ class TicTacToeServerStartStopController
     public void 
     stopApplication()
     {
-        ITaskDispatcher dispatcher = null;
-        ServiceInvoker  invoker1   = null;
-        ServiceInvoker  invoker2   = null;
+        ITaskDispatcher  dispatcher = null;
+        ServiceInvoker   invoker1   = null;
+        ServiceInvoker   invoker2   = null;
+        DeadSessionTimer timer      = null;
         
         dispatcher = 
             itsContainer.getInstance( ITaskDispatcher.class );
@@ -97,10 +103,13 @@ class TicTacToeServerStartStopController
             itsContainer.getInstance(ServiceInvoker.class,"ServiceInvoker1");
         invoker2 = 
             itsContainer.getInstance(ServiceInvoker.class,"ServiceInvoker2");
-        
+        timer = 
+            itsContainer.getInstance( DeadSessionTimer.class );
+       
         dispatcher.stopDispatching();
         invoker1.stopProducing();
         invoker2.stopProducing();
+        timer.stopProducing();
     }
 
 }

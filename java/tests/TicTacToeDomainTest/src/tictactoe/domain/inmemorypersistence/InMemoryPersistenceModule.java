@@ -6,11 +6,11 @@ package tictactoe.domain.inmemorypersistence;
 
 import tictactoe.domain.gamedomain.IGameRepositoryProvider;
 import tictactoe.domain.persistence.PersistenceModule;
+import tictactoe.domain.playerdomain.IChallengeRepositoryProvider;
 import tictactoe.domain.playerdomain.IPlayerRepositoryProvider;
 import tictactoe.domain.sessiondomain.ISessionRepositoryProvider;
 import tictactoe.domain.sessiondomain.IUserRepositoryProvider;
 
-import strata1.entity.inmemoryrepository.InMemoryRepositoryContext;
 import strata1.entity.repository.IRepositoryContext;
 
 import javax.inject.Provider;
@@ -73,6 +73,16 @@ class InMemoryPersistenceModule
     getPlayerRepositoryProviderType()
     {
         return InMemoryPlayerRepositoryProvider.class;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    protected Class<? extends IChallengeRepositoryProvider> 
+    getChallengeRepositoryProviderType()
+    {
+        return InMemoryChallengeRepositoryProvider.class;
     }
 
     /************************************************************************

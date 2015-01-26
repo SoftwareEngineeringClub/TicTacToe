@@ -13,14 +13,19 @@ class PlayerException
 {
 
 	private static final long serialVersionUID	= -8146943968763019593L;
+	
+	private final String itsReturnAddress;
+	private final Long   itsOriginatingRequestId;
 
 	/************************************************************************
 	 * Creates a new PlayerException. 
 	 *
 	 */
 	public 
-	PlayerException()
+	PlayerException(PlayerRequest request)
 	{
+	    itsReturnAddress        = request.getReturnAddress();
+	    itsOriginatingRequestId = request.getRequestId();
 	}
 
 	/************************************************************************
@@ -29,10 +34,20 @@ class PlayerException
 	 * @param arg0
 	 */
 	public 
-	PlayerException(String arg0)
+	PlayerException(PlayerRequest request,String arg0)
 	{
 		super( arg0 );
-
+		
+        if ( request != null )
+        {
+            itsReturnAddress        = request.getReturnAddress();
+            itsOriginatingRequestId = request.getRequestId();
+        }
+        else
+        {
+            itsReturnAddress        = null;
+            itsOriginatingRequestId = null;
+        }
 	}
 
 	/************************************************************************
@@ -41,10 +56,20 @@ class PlayerException
 	 * @param arg0
 	 */
 	public 
-	PlayerException(Throwable arg0)
+	PlayerException(PlayerRequest request,Throwable arg0)
 	{
 		super( arg0 );
-
+		
+		if ( request != null )
+		{
+            itsReturnAddress        = request.getReturnAddress();
+            itsOriginatingRequestId = request.getRequestId();
+		}
+		else
+		{
+		    itsReturnAddress        = null;
+		    itsOriginatingRequestId = null;
+		}
 	}
 
 	/************************************************************************
@@ -54,12 +79,34 @@ class PlayerException
 	 * @param arg1
 	 */
 	public 
-	PlayerException(String arg0,Throwable arg1)
+	PlayerException(PlayerRequest request,String arg0,Throwable arg1)
 	{
 		super( arg0,arg1 );
-
+        itsReturnAddress        = request.getReturnAddress();
+        itsOriginatingRequestId = request.getRequestId();
 	}
 
+	/************************************************************************
+	 *  
+	 *
+	 * @return
+	 */
+	public String
+	getReturnAddress()
+	{
+	    return itsReturnAddress;
+	}
+	
+	/************************************************************************
+	 *  
+	 *
+	 * @return
+	 */
+	public Long
+	getOriginatingRequestId()
+	{
+	    return itsOriginatingRequestId;
+	}
 }
 
 // ##########################################################################

@@ -20,12 +20,13 @@
   <property name="hibernate.c3p0.max_statement">10</property>
   <property name="hibernate.c3p0.preferredTestQuery">select 1;</property>
  
-  <property name="hibernate.show_sql">true</property>
+  <property name="hibernate.show_sql">false</property>
   <property name="hibernate.format_sql">true</property>
    
   <mapping resource="tictactoe/serverplatform/sessionmapping/Session.hbm.xml"/>
   <mapping resource="tictactoe/serverplatform/sessionmapping/User.hbm.xml"/>
   <mapping resource="tictactoe/serverplatform/sessionmapping/Player.hbm.xml"/>
+  <mapping resource="tictactoe/serverplatform/sessionmapping/Challenge.hbm.xml"/>
   <mapping resource="tictactoe/serverplatform/sessionmapping/Game.hbm.xml"/>
  </session-factory>
 </hibernate-configuration>

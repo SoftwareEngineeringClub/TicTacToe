@@ -127,7 +127,8 @@ class MainController
             .setUserId( session.getUserId() );
         itsPlayersController
             .setSessionId( session.getSessionId() )
-            .setUserId( session.getUserId() );
+            .setUserId( session.getUserId() )
+            .startListening();
         /*
         itsGameController
             .setSessionId( session.getSessionId() )

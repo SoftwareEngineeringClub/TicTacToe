@@ -138,11 +138,15 @@ class SessionRepositoryTest
         expected = itsTarget.insertSession( expected );
         
         expected.setUserId( new Long(3) );
+        expected.setSessionReturnAddress( "Session-12345" );
+        expected.setPlayerReturnAddress( "Player-12345" );
         actual = itsTarget.updateSession( expected );
         
         //assertNotEquals( expected.getSessionId(),actual.getSessionId() );
         assertEquals( expected.getVersion(),actual.getVersion() );
         assertEquals( expected.getUserId(),actual.getUserId() );
+        assertEquals( expected.getSessionReturnAddress(),actual.getSessionReturnAddress() );
+        assertEquals( expected.getPlayerReturnAddress(),actual.getPlayerReturnAddress() );
     }
 
     /**

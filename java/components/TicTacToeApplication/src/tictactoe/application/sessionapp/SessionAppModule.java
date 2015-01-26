@@ -44,7 +44,11 @@ class SessionAppModule
                 bindType(ISessionService.class)
                     .withKey( "SessionServiceImplementation" )
                     .toType(SessionServiceImp.class)
-                    .withScope( new ThreadScope<ISessionService>() ) );
+                    .withScope( new ThreadScope<ISessionService>() ) )
+            .insertBinding( 
+                bindType(ISessionManager.class)
+                    .toType(SessionManager.class)
+                    .withScope( new ThreadScope<ISessionManager>() ) );
     }
 
 }

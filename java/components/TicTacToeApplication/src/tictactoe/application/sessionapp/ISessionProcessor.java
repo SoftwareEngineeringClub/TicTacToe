@@ -11,6 +11,7 @@ import tictactoe.service.sessionservice.LogoutReply;
 import tictactoe.service.sessionservice.LogoutRequest;
 import tictactoe.service.sessionservice.RegisterReply;
 import tictactoe.service.sessionservice.RegisterRequest;
+import tictactoe.service.sessionservice.KeepAliveRequest;
 
 import strata1.common.utility.Pair;
 import strata1.entity.repository.RepositoryException;
@@ -59,6 +60,28 @@ interface ISessionProcessor
      */
     public Pair<LogoutReply,PlayerChangeEvent>
     logout(LogoutRequest request) 
+        throws RepositoryException, Exception;
+    
+    /************************************************************************
+     * Processes incoming request to keep session alive. 
+     *
+     * @param   request request to update session heartbeat
+     * @throws  RepositoryException persistence exceptions
+     * @throws  Exception all other exceptions
+     */
+    public void
+    keepAlive(KeepAliveRequest request)
+        throws RepositoryException, Exception;
+    
+    /************************************************************************
+     * Processes remove dead session task. 
+     *
+     * @return event that notifies clients of player changes
+     * @throws RepositoryException
+     * @throws Exception
+     */
+    public PlayerChangeEvent
+    removeDeadSessions()
         throws RepositoryException, Exception;
 }
 

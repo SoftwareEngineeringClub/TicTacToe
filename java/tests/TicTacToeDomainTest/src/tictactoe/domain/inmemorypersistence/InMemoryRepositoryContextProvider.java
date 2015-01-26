@@ -4,7 +4,9 @@
 
 package tictactoe.domain.inmemorypersistence;
 
+import tictactoe.domain.playerdomain.Challenge;
 import tictactoe.domain.playerdomain.Player;
+import tictactoe.domain.sessiondomain.Session;
 import tictactoe.domain.sessiondomain.User;
 
 import strata1.entity.inmemoryrepository.IPredicate;
@@ -40,7 +42,25 @@ class InMemoryRepositoryContextProvider
     {
         InMemoryRepositoryContext context = 
             new InMemoryRepositoryContext();
-        
+
+        new InMemoryFinder<Session>(
+            context, 
+            "getSessionFor", 
+            Session.class, 
+            new IPredicate<Session>() 
+            {
+                {}
+                
+                @Override
+                public boolean 
+                evaluate(Session session,Map<String,Object> parameters)
+                {
+                    Long userId = (Long)parameters.get( "userId" );
+                    
+                    return session.getUserId().equals( userId );
+                }
+            });
+
         new InMemoryFinder<User>(
             context, 
             "getUsers", 
@@ -73,6 +93,64 @@ class InMemoryRepositoryContextProvider
                     Long userId = (Long)parameters.get( "userId" );
                     
                     return player.getUserId() == userId;
+                }
+            });
+
+        new InMemoryFinder<Challenge>(
+            context, 
+            "getChallenges", 
+            Challenge.class, 
+            new IPredicate<Challenge>() 
+            {
+                {}
+                
+                @Override
+                public boolean 
+                evaluate(Challenge challenge,Map<String,Object> parameters)
+                {
+                    return true;
+                }
+            });
+
+        new InMemoryFinder<Challenge>(
+            context, 
+            "getPendingChallengeFor", 
+            Challenge.class, 
+            new IPredicate<Challenge>() 
+            {
+                {}
+                
+                @Override
+                public boolean 
+                evaluate(Challenge challenge,Map<String,Object> parameters)
+                {
+                    Long challengerUserId = (Long)parameters.get( "challengerUserId" );
+                    Long challengedUserId = (Long)parameters.get( "challengedUserId" );
+                    
+                   return 
+                       challenge.getChallengerUserId().equals( challengerUserId ) &&
+                       challenge.getChallengedUserId().equals( challengedUserId );
+                }
+            });
+
+        new InMemoryFinder<Challenge>(
+            context, 
+            "hasPendingChallengeFor", 
+            Challenge.class, 
+            new IPredicate<Challenge>() 
+            {
+                {}
+                
+                @Override
+                public boolean 
+                evaluate(Challenge challenge,Map<String,Object> parameters)
+                {
+                    Long challengerUserId = (Long)parameters.get( "challengerUserId" );
+                    Long challengedUserId = (Long)parameters.get( "challengedUserId" );
+                    
+                   return 
+                       challenge.getChallengerUserId().equals( challengerUserId ) &&
+                       challenge.getChallengedUserId().equals( challengedUserId );
                 }
             });
 

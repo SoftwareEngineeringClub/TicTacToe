@@ -1,10 +1,12 @@
 // ##########################################################################
-// # File Name:	ChallengePlayerTask.java
+// # File Name:	IssueChallengeTask.java
 // ##########################################################################
 
 package tictactoe.integration.serviceinvoker;
 
-import tictactoe.service.playerservice.ChallengePlayerRequest;
+import tictactoe.service.playerservice.IPlayerEventListener;
+import tictactoe.service.playerservice.IPlayerNotifierHost;
+import tictactoe.service.playerservice.IssueChallengeRequest;
 import tictactoe.service.playerservice.IPlayerReplyReceiver;
 import tictactoe.service.playerservice.IPlayerService;
 
@@ -16,12 +18,13 @@ import strata1.injector.container.IContainer;
  * 
  */
 public 
-class ChallengePlayerTask 
+class IssueChallengeTask 
     extends AbstractTask
 {
-    private final IContainer             itsContainer;
-    private final ChallengePlayerRequest itsRequest;
-    private final IPlayerReplyReceiver   itsReceiver;
+    private final IContainer            itsContainer;
+    private final IssueChallengeRequest itsRequest;
+    private final IPlayerReplyReceiver  itsReceiver;
+    private final IPlayerEventListener  itsRouter;
     
     /************************************************************************
      * Creates a new GetPlayersTask. 
@@ -31,15 +34,17 @@ class ChallengePlayerTask
      * @param receiver
      */
     public 
-    ChallengePlayerTask(
-        IContainer             container,
-        ChallengePlayerRequest request,
-        IPlayerReplyReceiver   receiver)
+    IssueChallengeTask(
+        IContainer            container,
+        IssueChallengeRequest request,
+        IPlayerReplyReceiver  receiver,
+        IPlayerEventListener  router)
     {
-        super( "ChallengePlayerTask" );
+        super( "IssueChallengeTask" );
         itsContainer = container;
         itsRequest   = request;
         itsReceiver  = receiver;
+        itsRouter    = router;
     }
 
     /************************************************************************
@@ -62,7 +67,10 @@ class ChallengePlayerTask
         logger.logInfo( 
             "Executing challenge player task for request: " + 
             itsRequest.getRequestId() );
-        service.challengePlayer( itsReceiver,itsRequest );
+        
+        ((IPlayerNotifierHost)service).setPlayerNotifier( itsRouter );
+        
+        service.issueChallenge( itsReceiver,itsRequest );
     }
 
 }

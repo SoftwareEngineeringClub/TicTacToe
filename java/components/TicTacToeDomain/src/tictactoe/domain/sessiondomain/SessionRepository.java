@@ -4,13 +4,19 @@
 
 package tictactoe.domain.sessiondomain;
 
+import strata1.entity.repository.IFinder;
 import strata1.entity.repository.IRepositoryContext;
 import strata1.entity.repository.IUnitOfWork;
 import strata1.entity.repository.InsertFailedException;
+import strata1.entity.repository.InvalidInputException;
+import strata1.entity.repository.NotUniqueException;
 import strata1.entity.repository.RemoveFailedException;
 import strata1.entity.repository.UpdateFailedException;
 
 import javax.inject.Inject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /****************************************************************************
  * 
@@ -86,6 +92,18 @@ class SessionRepository
 	}
 
 	/************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public List<Session> 
+    getSessions()
+    {
+        IFinder<Session> finder = getFinder("getSessions");
+        
+        return new ArrayList<Session>(finder.getAll());
+    }
+
+    /************************************************************************
 	 * {@inheritDoc} 
 	 */
 	@Override
@@ -99,10 +117,37 @@ class SessionRepository
      * {@inheritDoc} 
      */
     @Override
+    public Session 
+    getSessionFor(User user) 
+        throws InvalidInputException, NotUniqueException
+    {
+        IFinder<Session> finder = getFinder("getSessionFor");
+        
+        finder.setInput( "userId",user.getUserId() );
+        return finder.getUnique();
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
     public boolean 
     hasSession(Long sessionId)
     {
         return itsProvider.hasExisting( sessionId );
+    }
+    /************************************************************************
+     *  
+     *
+     * @param finderName
+     * @return
+     */
+    private IFinder<Session> 
+    getFinder(String finderName)
+    {
+        return 
+            itsProvider.getFinder( 
+                "tictactoe.domain.sessiondomain.Session." + finderName );
     }
 
 }

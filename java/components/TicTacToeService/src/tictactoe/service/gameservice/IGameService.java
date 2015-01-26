@@ -10,11 +10,19 @@ package tictactoe.service.gameservice;
 public 
 interface IGameService
 {
+    public void
+    startGame(IGameReplyReceiver receiver,StartGameRequest request);
+    
 	public void
-	getGameState(IGameReplyReceiver reply,GetGameStateRequest request);
+	getGameState(IGameReplyReceiver receiver,GetGameStateRequest request);
 	
 	public void
-	makeMove(IGameReplyReceiver reply,MakeMoveRequest request);
+	makeMove(IGameReplyReceiver receiver,MakeMoveRequest request);
+	
+	public void
+	startListening(
+	    IGameReplyReceiver    receiver,
+	    StartListeningRequest request);
 }
 
 // ##########################################################################

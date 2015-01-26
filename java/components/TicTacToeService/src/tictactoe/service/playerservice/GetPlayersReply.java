@@ -24,9 +24,10 @@ class GetPlayersReply
 	 *
 	 */
 	public 
-	GetPlayersReply(GetPlayersRequest originatingRequest)
+	GetPlayersReply(GetPlayersRequest request)
 	{
-	    super( originatingRequest.getRequestId() );
+	    super( request.getRequestId(),request.getReturnAddress());
+	    
 	    itsPlayerData = new ArrayList<PlayerData>();
 	}
 

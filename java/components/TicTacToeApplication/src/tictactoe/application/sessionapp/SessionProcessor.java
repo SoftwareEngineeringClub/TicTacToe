@@ -20,12 +20,16 @@ import tictactoe.service.sessionservice.LogoutReply;
 import tictactoe.service.sessionservice.LogoutRequest;
 import tictactoe.service.sessionservice.RegisterReply;
 import tictactoe.service.sessionservice.RegisterRequest;
+import tictactoe.service.sessionservice.KeepAliveRequest;
 
+import strata1.common.datetime.DateTime;
 import strata1.common.logger.ILogger;
 import strata1.common.utility.Pair;
 import strata1.entity.repository.RepositoryException;
 
 import javax.inject.Inject;
+
+import java.sql.Timestamp;
 
 /****************************************************************************
  * 
@@ -132,6 +136,15 @@ class SessionProcessor
             return Pair.create(reply,null);
         }
         
+        if ( player.getStatus() == PlayerStatus.ONLINE )
+        {
+            itsLogger.logWarning( 
+                "User " + user.getUserName() + " already logged in." );
+            reply.setMessage( 
+                "User " + user.getUserName() + " already logged in." );
+            return Pair.create(reply,null);           
+        }
+        
         itsLogger.logDebug( "Setting session userId: " + user.getUserId() );
         session.setUserId( user.getUserId() );
         itsLogger.logDebug( "Saving session: " + session.getSessionId() );
@@ -188,6 +201,72 @@ class SessionProcessor
     }
 
     /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    keepAlive(KeepAliveRequest request)
+        throws RepositoryException, Exception
+    {
+        Long              id      = request.getSessionId();
+        Session           session = itsSessionRepository.getSession(id);
+
+        itsLogger.logInfo( 
+            "Processing keep alive request:" + request.getRequestId() + 
+            " on thread: " + Thread.currentThread().getName() );
+        
+        if ( session == null )
+            throw 
+                new IllegalStateException(
+                    "Session: " + id + " was prematurely closed." );
+        
+        session.setLastHeartbeat( new DateTime() );
+        itsSessionRepository.updateSession( session );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public PlayerChangeEvent 
+    removeDeadSessions() 
+        throws RepositoryException, Exception
+    {
+        PlayerChangeEvent event = null;
+
+        itsLogger.logInfo( 
+            "Processing remove dead sessions task on thread: " + 
+            Thread.currentThread().getName() );
+        
+        for (Session session : itsSessionRepository.getSessions())
+        {
+            if ( isSessionDead( session ) )
+            {
+                User   user = itsUserRepository.getUser(session.getUserId());
+                Player player = itsPlayerRepository.getPlayerFor(user);
+                
+                itsLogger.logInfo( 
+                    "Removing dead session: " + session.getSessionId() );
+                itsSessionRepository.removeSession( session );
+                itsLogger.logInfo( 
+                    "Updating player: userName(" + user.getUserName() + 
+                    "), playerId(" + player.getPlayerId() + 
+                    ") status = OFFLINE");
+                player.setStatus( PlayerStatus.OFFLINE );
+                player = itsPlayerRepository.updatePlayer( player );
+                
+                if ( event == null )
+                {
+                    event = new PlayerChangeEvent();
+                    event.setChange( ChangeKind.PLAYER_LOGGED_OUT );
+                }
+            }
+        }
+        
+        return event;
+    }
+
+    /************************************************************************
      *  
      *
      * @param user
@@ -207,6 +286,22 @@ class SessionProcessor
                 player.getTies(),
                 player.getCurrentRank(),
                 player.getAverageRank() );        
+    }
+    
+    /************************************************************************
+     *  
+     *
+     * @param session
+     * @return
+     */
+    private boolean
+    isSessionDead(Session session)
+    {
+        long now  = new DateTime().getCalendar().getTimeInMillis();
+        long last = session.getLastHeartbeat().getCalendar().getTimeInMillis();
+        long threshold = 5*60*1000;
+        
+        return (now - last) > threshold;
     }
 }
 

@@ -37,7 +37,11 @@ class PlayerDomainModule
             .insertBinding( 
                 bindType( IPlayerRepository.class )
                     .toType( PlayerRepository.class )
-                    .withScope( new ThreadScope<IPlayerRepository>() ) );
+                    .withScope( new ThreadScope<IPlayerRepository>() ) )
+            .insertBinding( 
+                bindType( IChallengeRepository.class )
+                    .toType( ChallengeRepository.class )
+                    .withScope( new ThreadScope<IChallengeRepository>() ) );
     }
 
 }

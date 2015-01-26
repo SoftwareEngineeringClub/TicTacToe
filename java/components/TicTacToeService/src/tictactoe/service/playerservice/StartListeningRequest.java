@@ -1,42 +1,45 @@
 // ##########################################################################
-// # File Name:	ChallengePlayerRequest.java
+// # File Name:	GetPlayersRequest.java
 // ##########################################################################
 
 package tictactoe.service.playerservice;
+
+
 
 /****************************************************************************
  * 
  */
 public 
-class ChallengePlayerRequest 
+class StartListeningRequest 
 	extends PlayerRequest
 {
 
-	private static final long serialVersionUID	= 1196302618233541350L;
+	private static final long serialVersionUID	= -1966789538643597240L;
 	
-	private Long itsChallengedUserId;
-
+	private final transient IPlayerEventListener itsListener;
+	
 	/************************************************************************
-	 * Creates a new ChallengePlayerRequest. 
+	 * Creates a new GetPlayersRequest. 
 	 *
 	 */
 	public 
-	ChallengePlayerRequest(Long sessionId,Long userId)
+	StartListeningRequest(
+	    final Long sessionId,
+	    final Long userId,
+	    final IPlayerEventListener listener)
 	{
 	    super( sessionId,userId );
-	    itsChallengedUserId = 0L;
+	    itsListener = listener;
 	}
 
-    /************************************************************************
-     *  
-     *
-     * @param challengedUserId
-     * @return
+	/************************************************************************
+     * {@inheritDoc} 
      */
-    public ChallengePlayerRequest
-    setChallengedUserId(Long challengedUserId)
+    @Override
+    public StartListeningRequest 
+    setReturnAddress(String returnAddress)
     {
-        itsChallengedUserId = challengedUserId;
+        super.setReturnAddress( returnAddress );
         return this;
     }
     
@@ -45,12 +48,11 @@ class ChallengePlayerRequest
      *
      * @return
      */
-    public Long
-    getChallengedUserId()
+    public IPlayerEventListener
+    getListener()
     {
-        return itsChallengedUserId;
+        return itsListener;
     }
-
 }
 
 // ##########################################################################

@@ -1,5 +1,5 @@
 // ##########################################################################
-// # File Name:	GameStateReply.java
+// # File Name:	GetGameStateReply.java
 // ##########################################################################
 
 package tictactoe.service.gameservice;
@@ -8,19 +8,20 @@ package tictactoe.service.gameservice;
  * 
  */
 public 
-class GameStateReply 
+class GetGameStateReply 
 	extends GameReply
 {
 
 	private static final long serialVersionUID	= 2660598304313845803L;
 
 	/************************************************************************
-	 * Creates a new GameStateReply. 
+	 * Creates a new GetGameStateReply. 
 	 *
 	 */
 	public 
-	GameStateReply()
+	GetGameStateReply(final GetGameStateRequest request)
 	{
+	    super( request.getRequestId(),request.getReturnAddress() );
 	}
 
 }

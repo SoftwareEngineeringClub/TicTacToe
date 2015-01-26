@@ -27,6 +27,17 @@ class GameStateData
      *
      */
     public 
+    GameStateData()
+    {
+        itsDimension = 3;
+        itsState = new StringBuilder("---------");
+    }
+
+    /************************************************************************
+     * Creates a new GameStateData. 
+     *
+     */
+    public 
     GameStateData(String state)
     {
         itsDimension = 3;
@@ -74,6 +85,16 @@ class GameStateData
         return getCell( row,column ).equals( OPEN_MARKER );
     }
     
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public String 
+    toString()
+    {
+        return itsState.toString();
+    }
+
     /************************************************************************
      *  
      *

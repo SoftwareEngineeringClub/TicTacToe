@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class 
+	    abstract="false" 
+	    name="tictactoe.domain.playerdomain.Challenge" 
+	    table="Challenge">
+  		<id 
+  	    	column="ChallengeId" 
+  	    	name="ChallengeId" 
+  	    	type="java.lang.Long">
+   			<generator class="native"/>
+  		</id>
+  		<version 
+  		    column="Version" 
+  		    generated="never" 
+  		    name="Version" 
+  		    type="java.lang.Integer"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="OriginatingRequestId" 
+   		    column="OriginatingRequestId"
+   		    type="java.lang.Long"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="ChallengerUserId" 
+   		    column="ChallengerUserId"
+   		    type="java.lang.Long"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="ChallengedUserId" 
+   		    column="ChallengedUserId"
+   		    type="java.lang.Long"/>
+ 		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="SessionKey" 
+   		    column="SessionKey"
+   		    type="java.lang.String"/>
+ 		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="ReplyChannelId" 
+   		    column="ReplyChannelId"
+   		    type="java.lang.String"/>
+ 		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="ReturnAddress" 
+   		    column="ReturnAddress"
+   		    type="java.lang.String"/>
+ 		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="CorrelationId" 
+   		    column="CorrelationId"
+   		    type="java.lang.String"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="Status" 
+   		    column="Status">
+   		    <type name="org.hibernate.type.EnumType">
+   		    	<param name="enumClass">tictactoe.domain.playerdomain.ChallengeStatus</param>
+   		    	<param name="type">12</param>
+   		    	<param name="useNamed">true</param>
+   		    </type>
+   		</property>
+   		<property 
+   			generated="never" 
+   			lazy="false" 
+   			name="Timestamp" 
+   			column="Timestamp" 
+   			type="strata1.entity.hibernaterepository.DateTimeType"/>
+
+   		<query 
+   		    fetch-size="100" 
+   		    name="getChallenges" 
+   		    read-only="true">
+   		    select c from Challenge c
+   		</query>
+   		
+   		<query 
+   		    fetch-size="100" 
+   		    name="getPendingChallengeFor" 
+   		    read-only="true">
+   		    select 
+   		    	c 
+   		   	from 
+   		   		Challenge c 
+   		    where 
+   		    	c.Status = 'REPLY_PENDING' and 
+   		    	c.ChallengerUserId = :challengerUserId and 
+   		    	c.ChallengedUserId = :challengedUserId
+   		</query>
+
+   		<query 
+   		    fetch-size="2" 
+   		    name="hasPendingChallengeFor" 
+   		    read-only="true">
+   		    select 
+   		    	count(c) 
+   		   	from 
+   		   		Challenge c 
+   		    where 
+   		    	c.Status = 'REPLY_PENDING' and 
+   		    	c.ChallengerUserId = :challengerUserId and 
+   		    	c.ChallengedUserId = :challengedUserId
+   		</query>
+ 	</class>
+</hibernate-mapping>

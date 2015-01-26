@@ -4,13 +4,16 @@
 
 package tictactoe.client.homeclient;
 
-import tictactoe.service.playerservice.ChallengePlayerReply;
+import tictactoe.service.playerservice.AcceptChallengeReply;
+import tictactoe.service.playerservice.DeclineChallengeReply;
+import tictactoe.service.playerservice.IssueChallengeReply;
 import tictactoe.service.playerservice.GetPlayersReply;
 import tictactoe.service.playerservice.GetPlayersRequest;
 import tictactoe.service.playerservice.IPlayerReplyReceiver;
 import tictactoe.service.playerservice.IPlayerService;
 import tictactoe.service.playerservice.PlayerData;
 import tictactoe.service.playerservice.PlayerException;
+import tictactoe.service.playerservice.StartListeningReply;
 
 import strata1.client.model.AbstractModel;
 import strata1.common.logger.ILogger;
@@ -112,11 +115,44 @@ class HomeModel
      */
     @Override
     public void 
-    onChallengePlayer(ChallengePlayerReply reply)
+    onIssueChallenge(IssueChallengeReply reply)
     {
         onThrowable( 
             new UnsupportedOperationException(
-                "HomeModel.onChallengePlayer") );
+                "HomeModel.onIssueChallenge") );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onAcceptChallenge(AcceptChallengeReply reply)
+    {
+        onThrowable( 
+            new UnsupportedOperationException(
+                "HomeModel.onAcceptChallenge") );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onDeclineChallenge(DeclineChallengeReply reply)
+    {
+        onThrowable( 
+            new UnsupportedOperationException(
+                "HomeModel.onDeclineChallenge") );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onStartListening(StartListeningReply reply)
+    {
     }
 
     /************************************************************************

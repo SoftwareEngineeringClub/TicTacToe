@@ -19,6 +19,15 @@ interface IPlayersView
     insertPlayer(PlayerData playerData);
     
     public IPlayersView
+    displayChallenge(PlayerData challenger);
+    
+    public IPlayersView
+    displayChallengeAccepted(PlayerData challenged);
+    
+    public IPlayersView
+    displayChallengeDeclined(PlayerData challenged);
+
+    public IPlayersView
     removePlayers();
     
     public String

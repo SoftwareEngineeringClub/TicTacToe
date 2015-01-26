@@ -4,6 +4,9 @@
 
 package tictactoe.client.gameclient;
 
+import tictactoe.client.playersclient.IPlayersModel;
+import tictactoe.client.playersclient.IPlayersView;
+
 import strata1.injector.container.AbstractModule;
 import strata1.injector.container.IContainer;
 import strata1.injector.container.SingletonScope;
@@ -36,10 +39,35 @@ class GameClientModule
     {
         container
             .insertBinding( 
+                bindType(IGameView.class)
+                    .toType(getGameViewType())
+                    .withScope(new SingletonScope<IGameView>()))
+            .insertBinding( 
+                bindType(IGameModel.class)
+                    .toType(getGameModelType())
+                    .withScope(new SingletonScope<IGameModel>()))
+            .insertBinding( 
                 bindType(IGameController.class)
                     .toType(getGameControllerType())
                     .withScope(new SingletonScope<IGameController>()));
     }
+
+
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    protected abstract Class<? extends IGameView>
+    getGameViewType();
+
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    protected abstract Class<? extends IGameModel>
+    getGameModelType();
 
     /************************************************************************
      *  

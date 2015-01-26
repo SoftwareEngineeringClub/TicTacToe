@@ -5,16 +5,20 @@
 package tictactoe.integration.serviceinvoker;
 
 import tictactoe.integration.playernotifier.PlayerEventNotifier;
-import tictactoe.service.playerservice.ChallengePlayerRequest;
+import tictactoe.service.playerservice.AcceptChallengeRequest;
+import tictactoe.service.playerservice.DeclineChallengeRequest;
+import tictactoe.service.playerservice.IssueChallengeRequest;
 import tictactoe.service.playerservice.GetPlayersRequest;
 import tictactoe.service.playerservice.IPlayerEventListener;
 import tictactoe.service.playerservice.IPlayerReplyReceiver;
 import tictactoe.service.playerservice.PlayerRequest;
+import tictactoe.service.playerservice.StartListeningRequest;
 import tictactoe.service.sessionservice.ISessionReplyReceiver;
 import tictactoe.service.sessionservice.LoginRequest;
 import tictactoe.service.sessionservice.LogoutRequest;
 import tictactoe.service.sessionservice.RegisterRequest;
 import tictactoe.service.sessionservice.SessionRequest;
+import tictactoe.service.sessionservice.KeepAliveRequest;
 
 import strata1.common.logger.ILogger;
 import strata1.common.task.AbstractTaskProducer;
@@ -40,14 +44,16 @@ class ServiceInvoker
     extends    AbstractTaskProducer 
     implements ITaskProducer,IMessageListener
 {    
-    private final IContainer        itsContainer;
-    private final String            itsRequestChannel;
-    private final String            itsReplyChannel;
-    private final String            itsEventChannel;
-    private final IMessagingSession itsCommandSession;
-    private final IMessagingSession itsEventSession;
-    private final ILogger           itsLogger;
-    private IMessageReceiver        itsReceiver;
+    private final IContainer           itsContainer;
+    private final String               itsRequestChannel;
+    private final String               itsReplyChannel;
+    private final String               itsEventChannel;
+    private final IMessagingSession    itsCommandSession;
+    private final IMessagingSession    itsEventSession;
+    private final IPlayerEventListener itsBroadcaster;
+    private final IPlayerEventListener itsRouter;
+    private final ILogger              itsLogger;
+    private IMessageReceiver           itsReceiver;
     
     /************************************************************************
      * Creates a new SessionInvoker. 
@@ -73,6 +79,14 @@ class ServiceInvoker
             itsContainer.getInstance( IMessagingSession.class,commandSession );
         itsEventSession  = 
             itsContainer.getInstance( IMessagingSession.class,eventSession );
+        itsBroadcaster = 
+            itsContainer.getInstance( 
+                IPlayerEventListener.class,
+                "PlayerEventBroadcaster" );
+        itsRouter = 
+            itsContainer.getInstance( 
+                IPlayerEventListener.class,
+                "PlayerEventRouter" );
         itsLogger = 
             itsContainer.getInstance(  ILogger.class );
         itsReceiver = null;
@@ -201,11 +215,7 @@ class ServiceInvoker
                 message.getReturnAddress(),
                 message.getCorrelationId(),
                 itsLogger); 
-        IPlayerEventListener notifier = 
-            new PlayerEventNotifier(
-                itsEventSession,
-                itsEventChannel,
-                itsLogger);
+
         itsLogger.logInfo( 
             "Receiving message: " + message.getMessageId() );
         
@@ -219,7 +229,7 @@ class ServiceInvoker
                         itsContainer,
                         (RegisterRequest)payload,
                         receiver,
-                        notifier) );
+                        itsBroadcaster) );
         }
         else if ( payload instanceof LoginRequest )
         {
@@ -230,7 +240,7 @@ class ServiceInvoker
                         itsContainer,
                         (LoginRequest)payload,
                         receiver,
-                        notifier ) );
+                        itsBroadcaster ) );
         }
         else if ( payload instanceof LogoutRequest )
         {
@@ -241,7 +251,16 @@ class ServiceInvoker
                         itsContainer,
                         (LogoutRequest)payload,
                         receiver,
-                        notifier ) );
+                        itsBroadcaster ) );
+        }
+        else if ( payload instanceof KeepAliveRequest )
+        {
+            itsLogger.logInfo( "Receiving keep alive request: " + requestId );
+            getDispatcher()
+                .route(
+                    new KeepAliveTask(
+                        itsContainer,
+                        (KeepAliveRequest)payload ) );
         }
         else
         {
@@ -265,8 +284,6 @@ class ServiceInvoker
             new PlayerReplyReceiver(
                 itsCommandSession,
                 itsReplyChannel,
-                message.getReturnAddress(),
-                message.getCorrelationId(),
                 itsLogger); 
         
         itsLogger.logInfo( 
@@ -283,15 +300,49 @@ class ServiceInvoker
                         (GetPlayersRequest)payload,
                         receiver ) );
         }
-        else if ( payload instanceof ChallengePlayerRequest )
+        else if ( payload instanceof IssueChallengeRequest )
         {
-            itsLogger.logInfo( "Receiving challenge player request: " + requestId );
+            itsLogger.logInfo( "Receiving issue challenge request: " + requestId );
             getDispatcher()
                 .route(
-                    new ChallengePlayerTask(
+                    new IssueChallengeTask(
                         itsContainer,
-                        (ChallengePlayerRequest)payload,
-                        receiver ) );
+                        (IssueChallengeRequest)payload,
+                        receiver,
+                        itsRouter ) );
+        }
+        else if ( payload instanceof AcceptChallengeRequest )
+        {
+            itsLogger.logInfo( "Receiving accept challenge request: " + requestId );
+            getDispatcher()
+                .route(
+                    new AcceptChallengeTask(
+                        itsContainer,
+                        (AcceptChallengeRequest)payload,
+                        receiver,
+                        itsRouter ) );
+        }
+        else if ( payload instanceof DeclineChallengeRequest )
+        {
+            itsLogger.logInfo( "Receiving decline challenge request: " + requestId );
+            getDispatcher()
+                .route(
+                    new DeclineChallengeTask(
+                        itsContainer,
+                        (DeclineChallengeRequest)payload,
+                        receiver,
+                        itsRouter ) );
+        }
+        else if ( payload instanceof StartListeningRequest )
+        {
+            itsLogger.logInfo( "Receiving start listening request: " + requestId );
+            getDispatcher()
+                .route(
+                    new PlayerStartListeningTask(
+                        itsContainer,
+                        (StartListeningRequest)payload,
+                        receiver,
+                        itsRouter ) );
         }
         else
         {

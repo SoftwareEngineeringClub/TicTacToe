@@ -14,7 +14,16 @@ interface IPlayerReplyReceiver
 	onGetPlayers(GetPlayersReply reply);
 	
 	public void
-	onChallengePlayer(ChallengePlayerReply reply);
+	onIssueChallenge(IssueChallengeReply reply);
+	
+	public void
+	onAcceptChallenge(AcceptChallengeReply reply);
+	
+	public void
+	onDeclineChallenge(DeclineChallengeReply reply);
+	
+	public void
+	onStartListening(StartListeningReply reply);
 	
 	public void
 	onPlayerException(PlayerException exception);

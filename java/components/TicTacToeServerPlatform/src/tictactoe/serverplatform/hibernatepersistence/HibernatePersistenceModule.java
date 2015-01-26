@@ -6,6 +6,7 @@ package tictactoe.serverplatform.hibernatepersistence;
 
 import tictactoe.domain.gamedomain.IGameRepositoryProvider;
 import tictactoe.domain.persistence.PersistenceModule;
+import tictactoe.domain.playerdomain.IChallengeRepositoryProvider;
 import tictactoe.domain.playerdomain.IPlayerRepositoryProvider;
 import tictactoe.domain.sessiondomain.ISessionRepositoryProvider;
 import tictactoe.domain.sessiondomain.IUserRepositoryProvider;
@@ -69,6 +70,16 @@ class HibernatePersistenceModule
     getPlayerRepositoryProviderType()
     {
         return HibernatePlayerRepositoryProvider.class;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    protected Class<? extends IChallengeRepositoryProvider> 
+    getChallengeRepositoryProviderType()
+    {
+        return HibernateChallengeRepositoryProvider.class;
     }
 
     /************************************************************************

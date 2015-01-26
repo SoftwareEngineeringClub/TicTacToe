@@ -23,6 +23,9 @@ interface IPlayersModel
     public IPlayersModel
     setUserId(Long userId);
     
+    public IPlayersModel
+    setChallengedUser(String userName);
+    
     public Long
     getSessionId();
     
@@ -31,7 +34,34 @@ interface IPlayersModel
 
     public List<PlayerData>
     getPlayerData();
+       
+    public Long
+    getChallengeId();
+
+    public PlayerData
+    getChallenger();
     
+    public PlayerData
+    getChallenged();
+    
+    public Long
+    getNewGameId();
+    
+    public boolean
+    isChallengeAccepted();
+    
+    public void
+    issueChallenge();
+    
+    public void
+    acceptChallenge();
+    
+    public void
+    declineChallenge();
+    
+    public void 
+    startListening();
+
     public void 
     refreshPlayerData();
 }

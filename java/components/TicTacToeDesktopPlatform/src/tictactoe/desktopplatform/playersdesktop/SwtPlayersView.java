@@ -184,7 +184,7 @@ class SwtPlayersView
                 {
                     try
                     {
-                        invoke( "Challenge" );
+                        invoke( "IssueChallenge" );
                     }
                     catch (ExecutionException e)
                     {
@@ -323,6 +323,120 @@ class SwtPlayersView
      */
     @Override
     public IPlayersView 
+    displayChallenge(PlayerData challenger)
+    {
+        final String message = 
+            "Accept challenge from " + challenger.getUserName() + "?";
+        
+        itsDispatcher.invokeAsynchronous( 
+            new Runnable() 
+            {
+                @Override
+                public void 
+                run()
+                {
+                    MessageBox dialog = 
+                        new MessageBox(new Shell(), SWT.ICON_QUESTION|SWT.YES|SWT.NO );
+                    int        answer;
+                    
+                    dialog.setText("Challenge");
+                    dialog.setMessage(message);
+                    answer = dialog.open();                     
+
+                    try
+                    {
+                        if ( answer == SWT.YES )
+                            invoke("AcceptChallenge");
+                        else
+                           invoke("DeclineChallenge");
+                    }
+                    catch (ExecutionException e)
+                    {
+                        MessageBox error = 
+                            new MessageBox(new Shell(), SWT.ICON_ERROR | SWT.OK );
+                        error.setText("Error");
+                        error.setMessage(e.getMessage());
+                        error.open();                     
+                    }
+                }
+            } );
+        return this;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public IPlayersView 
+    displayChallengeAccepted(PlayerData challenged)
+    {
+        final String message = 
+            "Challenge accepted from " + challenged.getUserName() + ".";
+        
+        itsDispatcher.invokeAsynchronous( 
+            new Runnable() 
+            {
+                @Override
+                public void 
+                run()
+                {
+                    MessageBox dialog = 
+                        new MessageBox(new Shell(), SWT.ICON_QUESTION|SWT.OK );
+                    
+                    dialog.setText("Challenge Accepted");
+                    dialog.setMessage(message);
+                    dialog.open();                     
+
+                    try
+                    {
+                        invoke("StartGame");
+                    }
+                    catch (ExecutionException e)
+                    {
+                        MessageBox error = 
+                            new MessageBox(new Shell(), SWT.ICON_ERROR | SWT.OK );
+                        error.setText("Error");
+                        error.setMessage(e.getMessage());
+                        error.open();                     
+                    }
+                }
+            } );
+        return this;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public IPlayersView 
+    displayChallengeDeclined(PlayerData challenged)
+    {
+        final String message = 
+            "Challenge declined from " + challenged.getUserName() + ".";
+        
+        itsDispatcher.invokeAsynchronous( 
+            new Runnable() 
+            {
+                @Override
+                public void 
+                run()
+                {
+                    MessageBox dialog = 
+                        new MessageBox(new Shell(), SWT.ICON_INFORMATION|SWT.OK);
+                    
+                    dialog.setText("Challenge Declined");
+                    dialog.setMessage(message);
+                    dialog.open();                     
+                }
+            } );
+        return this;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public IPlayersView 
     removePlayers()
     {
         itsDispatcher.invokeAsynchronous( 
@@ -351,6 +465,7 @@ class SwtPlayersView
         
         return selected[0].getText( 0 );
     }
+    
 }
 
 // ##########################################################################

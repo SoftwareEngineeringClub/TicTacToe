@@ -12,6 +12,7 @@ import tictactoe.service.sessionservice.LogoutRequest;
 import tictactoe.service.sessionservice.RegisterReply;
 import tictactoe.service.sessionservice.RegisterRequest;
 import tictactoe.service.sessionservice.SessionException;
+import tictactoe.service.sessionservice.KeepAliveRequest;
 
 import strata1.common.logger.ILogger;
 import strata1.injector.container.IContainer;
@@ -117,6 +118,28 @@ class SessionMessagingProxy
         sender.send( message );
     }
     
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    keepAlive(KeepAliveRequest request)
+    {
+        IObjectMessage   message  = createObjectMessage();
+        IMessageSender   sender   = createMessageSender();
+        String           correlationId = toString(request.getRequestId());
+        
+        message
+            .setCorrelationId( correlationId )
+            .setStringProperty( "RequestType","KeepAliveRequest" )
+            .setPayload( request );
+
+        itsLogger.logInfo( 
+            "Sending keep alive request: " + request.getRequestId() );
+        sender.setTimeToLive( 60*1000 );
+        sender.send( message );
+    }
+
     /************************************************************************
      * {@inheritDoc} 
      */

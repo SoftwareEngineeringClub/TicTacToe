@@ -4,10 +4,13 @@
 
 package tictactoe.client.playersclient;
 
+import tictactoe.client.gameclient.IGameController;
 import tictactoe.client.mainclient.IMainController;
 import tictactoe.client.mainclient.IMainSubController;
 import tictactoe.service.playerservice.PlayerData;
 
+import strata1.client.command.ExecutionException;
+import strata1.client.command.ICommand;
 import strata1.client.controller.AbstractController;
 import strata1.client.controller.IHandler;
 import strata1.client.event.IChangeEvent;
@@ -26,6 +29,7 @@ class PlayersController
     implements IPlayersController
 {
     private final IMainController itsMainController;
+    private final IGameController itsGameController;
     private final IPlayersView    itsView;
     private final IPlayersModel   itsModel;
     private final ILogger         itsLogger;
@@ -38,11 +42,13 @@ class PlayersController
     public 
     PlayersController(
         IMainController mainController,
+        IGameController gameController,
         IPlayersView    view,
         IPlayersModel   model,
         ILogger         logger)
     {
         itsMainController = mainController;
+        itsGameController = gameController;
         itsView           = view;
         itsModel          = model;
         itsLogger         = logger;
@@ -51,6 +57,7 @@ class PlayersController
         itsView.setProvider( this );
         itsModel.setProcessor( this );
         
+        setCommands();
         setHandlers();
     }
 
@@ -90,6 +97,16 @@ class PlayersController
      * {@inheritDoc} 
      */
     @Override
+    public void 
+    startListening()
+    {
+        itsModel.startListening();
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
     public IMainController 
     getMainController()
     {
@@ -112,6 +129,66 @@ class PlayersController
      *
      */
     protected void
+    setCommands()
+    {
+        setCommand( 
+            "IssueChallenge",
+            new ICommand()
+            {
+                @Override
+                public void 
+                execute() 
+                    throws ExecutionException
+                {
+                    doIssueChallenge();
+                }
+            } );
+        
+        setCommand( 
+            "AcceptChallenge",
+            new ICommand()
+            {
+                @Override
+                public void 
+                execute() 
+                    throws ExecutionException
+                {
+                    doAcceptChallenge();
+                }
+            } );
+        
+        setCommand( 
+            "DeclineChallenge",
+            new ICommand()
+            {
+                @Override
+                public void 
+                execute() 
+                    throws ExecutionException
+                {
+                    doDeclineChallenge();
+                }
+            } );           
+        
+        setCommand( 
+            "StartGame",
+            new ICommand()
+            {
+                @Override
+                public void 
+                execute() 
+                    throws ExecutionException
+                {
+                    doStartGame();
+                }
+            } );           
+    }
+
+    /************************************************************************
+     *  
+     *
+     */
+    protected void
     setHandlers()
     {
         setHandler(
@@ -126,7 +203,73 @@ class PlayersController
                 }
 
             } );
+        setHandler(
+            ProcessChallengeEvent.class,
+            new IHandler<IChangeEvent> ()
+            {
+                @Override
+                public void 
+                handle(IChangeEvent event)
+                {
+                    doProcessChallenge((ProcessChallengeEvent)event);
+                }
+
+            } );
+        setHandler(
+            ChallengeReplyEvent.class,
+            new IHandler<IChangeEvent> ()
+            {
+                @Override
+                public void 
+                handle(IChangeEvent event)
+                {
+                    doProcessChallengeReply((ChallengeReplyEvent)event);
+                }
+
+            } );
      }
+  
+    /************************************************************************
+     *  
+     *
+     */
+    private void
+    doIssueChallenge()
+    {
+        itsModel
+            .setChallengedUser( itsView.getSelectedPlayer() )
+            .issueChallenge();
+    }
+    
+    /************************************************************************
+     *  
+     *
+     */
+    private void
+    doAcceptChallenge()
+    {
+        itsModel.acceptChallenge();
+    }
+    
+    /************************************************************************
+     *  
+     *
+     */
+    private void
+    doDeclineChallenge()
+    {
+        itsModel.declineChallenge();
+    }
+    
+    /************************************************************************
+     *  
+     *
+     */
+    private void
+    doStartGame()
+    {
+        itsGameController.startGame( itsModel.getNewGameId() );
+    }
     
     /************************************************************************
      *  
@@ -146,6 +289,36 @@ class PlayersController
                 itsView.insertPlayer( playerData );
         
         itsView.show();    
+    }
+    
+    /************************************************************************
+     *  
+     *
+     * @param event
+     */
+    private void 
+    doProcessChallenge(ProcessChallengeEvent event)
+    {
+        IPlayersModel model      = event.getSender( IPlayersModel.class );
+        PlayerData    challenger = model.getChallenger();
+
+        itsView.displayChallenge( challenger );
+    }
+    
+    /************************************************************************
+     *  
+     *
+     * @param event
+     */
+    private void 
+    doProcessChallengeReply(ChallengeReplyEvent event)
+    {
+        IPlayersModel model = event.getSender( IPlayersModel.class );
+
+        if ( model.isChallengeAccepted() )
+            itsView.displayChallengeAccepted( model.getChallenged() );
+        else  
+            itsView.displayChallengeDeclined( model.getChallenged() );
     }
 
 }

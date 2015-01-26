@@ -4,6 +4,8 @@
 
 package tictactoe.service.playerservice;
 
+import java.util.concurrent.TimeoutException;
+
 /****************************************************************************
  * 
  */
@@ -11,13 +13,29 @@ public
 interface IPlayerService
 {
 	public void
-	getPlayers(IPlayerReplyReceiver reply,GetPlayersRequest request);
+	getPlayers(
+	    IPlayerReplyReceiver receiver,
+	    GetPlayersRequest    request);
 	
 	public void
-	challengePlayer(IPlayerReplyReceiver reply,ChallengePlayerRequest request);
+	issueChallenge(
+	    IPlayerReplyReceiver  receiver,
+	    IssueChallengeRequest request);
 	
-	public PlayerEventListenerId
-	startListeningForEvents(IPlayerEventListener listener);
+	public void
+	acceptChallenge(
+	    IPlayerReplyReceiver   receiver,
+	    AcceptChallengeRequest request);
+	
+	public void
+	declineChallenge(
+	    IPlayerReplyReceiver    receiver,
+	    DeclineChallengeRequest request);
+	
+	public void
+	startListening(
+	    IPlayerReplyReceiver  receiver, 
+	    StartListeningRequest request);
 	
 	public void
 	stopListeningForEvents(PlayerEventListenerId listenerId);

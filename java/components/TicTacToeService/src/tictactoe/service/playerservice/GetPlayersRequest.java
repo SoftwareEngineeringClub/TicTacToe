@@ -23,13 +23,26 @@ class GetPlayersRequest
 	 *
 	 */
 	public 
-	GetPlayersRequest(Long sessionId,Long userId)
+	GetPlayersRequest(
+	    final Long sessionId,
+	    final Long userId)
 	{
 	    super( sessionId,userId );
 	    itsSinglePlayerFlag = false;
 	}
 
 	/************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public GetPlayersRequest 
+    setReturnAddress(String returnAddress)
+    {
+        super.setReturnAddress( returnAddress );
+        return this;
+    }
+
+    /************************************************************************
 	 *  
 	 *
 	 * @param playerUserId

@@ -88,6 +88,15 @@ class HomeController
      * {@inheritDoc} 
      */
     @Override
+    public void 
+    startListening()
+    {
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
     public IMainController 
     getMainController()
     {

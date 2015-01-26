@@ -4,10 +4,14 @@
 
 package tictactoe.integration.serviceinvoker;
 
-import tictactoe.service.playerservice.ChallengePlayerReply;
+import tictactoe.service.playerservice.AcceptChallengeReply;
+import tictactoe.service.playerservice.DeclineChallengeReply;
+import tictactoe.service.playerservice.IssueChallengeReply;
 import tictactoe.service.playerservice.GetPlayersReply;
 import tictactoe.service.playerservice.IPlayerReplyReceiver;
 import tictactoe.service.playerservice.PlayerException;
+import tictactoe.service.playerservice.PlayerReply;
+import tictactoe.service.playerservice.StartListeningReply;
 import tictactoe.service.sessionservice.ISessionReplyReceiver;
 import tictactoe.service.sessionservice.LoginReply;
 import tictactoe.service.sessionservice.LogoutReply;
@@ -30,8 +34,6 @@ class PlayerReplyReceiver
 {
     private final IMessagingSession itsSession;
     private final String            itsReplyChannelId;
-    private final String            itsReturnAddress;
-    private final String            itsCorrelationId;
     private final ILogger           itsLogger;
     
     /************************************************************************
@@ -42,14 +44,10 @@ class PlayerReplyReceiver
     PlayerReplyReceiver(
         IMessagingSession session,
         String            replyChannelId,
-        String            returnAddress,
-        String            correlationId,
         ILogger           logger)
     {
         itsSession        = session;
         itsReplyChannelId = replyChannelId;
-        itsReturnAddress  = returnAddress;
-        itsCorrelationId  = correlationId;
         itsLogger         = logger;
     }
 
@@ -63,7 +61,7 @@ class PlayerReplyReceiver
         itsLogger.logInfo( 
             "Sending get players reply: " + reply.getReplyId() + 
             " for request: " + reply.getOriginatingRequestId() );
-        sendMessage( createMessage().setPayload( reply ) );
+        sendMessage( createMessage( reply ) );
     }
 
     /************************************************************************
@@ -71,12 +69,51 @@ class PlayerReplyReceiver
      */
     @Override
     public void 
-    onChallengePlayer(ChallengePlayerReply reply)
+    onIssueChallenge(IssueChallengeReply reply)
     {
         itsLogger.logInfo( 
             "Sending challenge player reply: " + reply.getReplyId() + 
             " for request: " + reply.getOriginatingRequestId() );
-        sendMessage( createMessage().setPayload( reply ) );
+        sendMessage( createMessage( reply ) );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onAcceptChallenge(AcceptChallengeReply reply)
+    {
+        itsLogger.logInfo( 
+            "Sending accept challenge reply: " + reply.getReplyId() + 
+            " for request: " + reply.getOriginatingRequestId() );
+        sendMessage( createMessage( reply ) );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onDeclineChallenge(DeclineChallengeReply reply)
+    {
+        itsLogger.logInfo( 
+            "Sending decline challenge reply: " + reply.getReplyId() + 
+            " for request: " + reply.getOriginatingRequestId() );
+        sendMessage( createMessage( reply ) );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    onStartListening(StartListeningReply reply)
+    {
+        itsLogger.logInfo( 
+            "Sending start listening reply: " + reply.getReplyId() + 
+            " for request: " + reply.getOriginatingRequestId() );
+        sendMessage( createMessage( reply ) );
     }
 
     /************************************************************************
@@ -88,7 +125,7 @@ class PlayerReplyReceiver
     {
         itsLogger.logInfo( 
             "Sending player exception: " + exception.getMessage() );
-        sendMessage( createMessage().setPayload( exception ) );
+        sendMessage( createMessage( exception ) );
     }
 
     /************************************************************************
@@ -100,7 +137,9 @@ class PlayerReplyReceiver
     {
         itsLogger.logInfo( 
             "Sending throwable: " + throwable.getMessage() );
-        sendMessage( createMessage().setPayload( throwable ) );
+        
+        
+        //sendMessage( createMessage( throwable ) );
     }
 
     /************************************************************************
@@ -109,15 +148,32 @@ class PlayerReplyReceiver
      * @return
      */
     private IObjectMessage
-    createMessage()
+    createMessage(PlayerReply reply)
     {
-        return
+        return 
             itsSession
                 .createObjectMessage()
-                .setReturnAddress( itsReturnAddress )
-                .setCorrelationId( itsCorrelationId );
+                .setReturnAddress(reply.getReturnAddress())
+                .setCorrelationId(toString(reply.getOriginatingRequestId()))
+                .setPayload(reply);
     }
-    
+
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    private IObjectMessage
+    createMessage(PlayerException exception)
+    {
+        return 
+            itsSession
+                .createObjectMessage()
+                .setReturnAddress(exception.getReturnAddress())
+                .setCorrelationId(toString(exception.getOriginatingRequestId()))
+                .setPayload(exception);
+    }
+
     /************************************************************************
      *  
      *
@@ -131,6 +187,18 @@ class PlayerReplyReceiver
         
         sender.setTimeToLive( 60*1000 );
         sender.send( message );
+    }
+
+    /************************************************************************
+     *  
+     *
+     * @param originatingRequestId
+     * @return
+     */
+    private String 
+    toString(long originatingRequestId)
+    {
+        return new Long(originatingRequestId).toString();
     }
 }
 

@@ -65,6 +65,15 @@ class FakeHomeController
         return null;
     }
 
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    startListening()
+    {
+    }
+
     @Override
     public IMainController getMainController()
     {

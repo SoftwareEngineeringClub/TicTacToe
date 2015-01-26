@@ -11,7 +11,6 @@ public
 class GetGameStateRequest 
 	extends GameRequest
 {
-
 	private static final long serialVersionUID	= 5202528494522284304L;
 
 	/************************************************************************
@@ -19,8 +18,11 @@ class GetGameStateRequest
 	 *
 	 */
 	public 
-	GetGameStateRequest()
+	GetGameStateRequest(
+	    final long sessionId,
+	    final long userId)
 	{
+	    super( sessionId,userId );
 	}
 
 }

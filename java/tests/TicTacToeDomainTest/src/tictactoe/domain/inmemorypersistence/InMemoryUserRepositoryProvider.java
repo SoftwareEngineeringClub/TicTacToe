@@ -5,7 +5,6 @@
 package tictactoe.domain.inmemorypersistence;
 
 import tictactoe.domain.sessiondomain.IUserRepositoryProvider;
-import tictactoe.domain.sessiondomain.Session;
 import tictactoe.domain.sessiondomain.User;
 
 import strata1.entity.inmemoryrepository.IEntityReplicator;

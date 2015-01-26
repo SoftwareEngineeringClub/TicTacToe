@@ -24,12 +24,42 @@
    		    column="UserId"
    		    type="java.lang.Long"/>
    		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="SessionReturnAddress" 
+   		    column="SessionReturnAddress"
+   		    type="java.lang.String"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="PlayerReturnAddress" 
+   		    column="PlayerReturnAddress"
+   		    type="java.lang.String"/>
+   		<property 
+   		    generated="never" 
+   		    lazy="false" 
+   		    name="GameReturnAddress" 
+   		    column="GameReturnAddress"
+   		    type="java.lang.String"/>
+   		<property 
    			generated="never" 
    			lazy="false" 
    			name="LastHeartbeat" 
    			type="strata1.entity.hibernaterepository.DateTimeType"/>
 
    		<query 
-   		    fetch-size="100" name="getSessions" read-only="true">select s from Session s</query>
+   		    fetch-size="100" 
+   		    name="getSessions" 
+   		    read-only="true">
+   		    select s from Session s
+   		</query>
+   		    
+   		<query 
+   		    fetch-size="2" 
+   		    name="getSessionFor" 
+   		    read-only="true">
+   		    select s from Session s where s.UserId = :userId
+   		</query>
+   		
  	</class>
 </hibernate-mapping>

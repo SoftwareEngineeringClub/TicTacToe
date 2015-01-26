@@ -90,6 +90,15 @@ class SessionController
      * {@inheritDoc} 
      */
     @Override
+    public void 
+    startListening()
+    {
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
     public ISessionView 
     getLoginView()
     {

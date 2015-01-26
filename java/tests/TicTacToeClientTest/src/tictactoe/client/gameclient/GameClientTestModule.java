@@ -26,6 +26,26 @@ class GameClientTestModule
      * {@inheritDoc} 
      */
     @Override
+    protected Class<? extends IGameView> 
+    getGameViewType()
+    {
+        return null;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    protected Class<? extends IGameModel> 
+    getGameModelType()
+    {
+        return null;
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
     protected Class<? extends IGameController> 
     getGameControllerType()
     {

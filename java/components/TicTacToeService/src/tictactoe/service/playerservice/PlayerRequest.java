@@ -20,6 +20,7 @@ class PlayerRequest
     private static final Random theirGenerator   = new SecureRandom();
 
     private final long itsRequestId;
+    private String     itsReturnAddress;
     private final Long itsSessionId;
     private final Long itsUserId;
 
@@ -39,13 +40,30 @@ class PlayerRequest
      * @param requestId
      */
     public 
-    PlayerRequest(final long requestId,Long sessionId,Long userId)
+    PlayerRequest(
+        final long requestId,
+        Long       sessionId,
+        Long       userId)
     {
-        itsRequestId = requestId;
-        itsSessionId = sessionId;
-        itsUserId    = userId;
+        itsRequestId     = requestId;
+        itsReturnAddress = null;
+        itsSessionId     = sessionId;
+        itsUserId        = userId;
     }
 
+    /************************************************************************
+     *  
+     *
+     * @param returnAddress
+     * @return
+     */
+    public PlayerRequest
+    setReturnAddress(String returnAddress)
+    {
+        itsReturnAddress = returnAddress;
+        return this;
+    }
+    
     /************************************************************************
      * Gets the request's identifier 
      *
@@ -55,6 +73,17 @@ class PlayerRequest
     getRequestId()
     {
         return itsRequestId;
+    }
+    
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    public String
+    getReturnAddress()
+    {
+        return itsReturnAddress;
     }
     
     /************************************************************************

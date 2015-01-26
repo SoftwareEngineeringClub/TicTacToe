@@ -15,6 +15,9 @@ class Session
 	private Long     itsSessionId;
 	private Integer  itsVersion;
 	private Long     itsUserId;
+	private String   itsSessionReturnAddress;
+	private String   itsPlayerReturnAddress;
+	private String   itsGameReturnAddress;
 	private DateTime itsLastHeartbeat;
 	
 	/************************************************************************
@@ -24,10 +27,13 @@ class Session
 	public 
 	Session()
 	{
-		itsSessionId     = new Long(0);
-		itsVersion       = new Integer(0);
-		itsUserId        = new Long(0);
-		itsLastHeartbeat = new DateTime();
+		itsSessionId            = new Long(0);
+		itsVersion              = new Integer(0);
+		itsUserId               = new Long(0);
+        itsSessionReturnAddress = "";
+        itsPlayerReturnAddress  = "";
+		itsGameReturnAddress    = "";
+		itsLastHeartbeat        = new DateTime();
 	}
 
 	/************************************************************************
@@ -38,10 +44,13 @@ class Session
 	public 
 	Session(Session other)
 	{
-	    itsSessionId     = new Long(other.itsSessionId);
-	    itsVersion       = new Integer(other.itsVersion);
-	    itsUserId        = new Long(other.itsUserId);
-	    itsLastHeartbeat = new DateTime(other.itsLastHeartbeat);
+	    itsSessionId            = other.itsSessionId;
+	    itsVersion              = other.itsVersion;
+	    itsUserId               = other.itsUserId;
+        itsSessionReturnAddress = other.itsSessionReturnAddress;
+        itsPlayerReturnAddress  = other.itsPlayerReturnAddress;
+	    itsGameReturnAddress    = other.itsGameReturnAddress;
+	    itsLastHeartbeat        = new DateTime(other.itsLastHeartbeat);
 	}
 	
 	/************************************************************************
@@ -75,6 +84,39 @@ class Session
 	setUserId(Long userId)
 	{
 		itsUserId = userId;
+	}
+    
+    /************************************************************************
+     *  
+     *
+     * @param returnAddress
+     */
+    public void
+    setSessionReturnAddress(String returnAddress)
+    {
+        itsSessionReturnAddress = returnAddress;
+    }
+    
+    /************************************************************************
+     *  
+     *
+     * @param returnAddress
+     */
+    public void
+    setPlayerReturnAddress(String returnAddress)
+    {
+        itsPlayerReturnAddress = returnAddress;
+    }
+	
+	/************************************************************************
+	 *  
+	 *
+	 * @param returnAddress
+	 */
+	public void
+	setGameReturnAddress(String returnAddress)
+	{
+	    itsGameReturnAddress = returnAddress;
 	}
 	
 	/************************************************************************
@@ -119,6 +161,39 @@ class Session
 	getUserId()
 	{
 		return itsUserId;
+	}
+    
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    public String
+    getSessionReturnAddress()
+    {
+        return itsSessionReturnAddress;
+    }
+    
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    public String
+    getPlayerReturnAddress()
+    {
+        return itsPlayerReturnAddress;
+    }
+	
+	/************************************************************************
+	 *  
+	 *
+	 * @return
+	 */
+	public String
+	getGameReturnAddress()
+	{
+	    return itsGameReturnAddress;
 	}
 	
 	/************************************************************************

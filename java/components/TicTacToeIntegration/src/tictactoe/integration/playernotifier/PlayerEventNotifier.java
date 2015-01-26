@@ -4,13 +4,13 @@
 
 package tictactoe.integration.playernotifier;
 
-import tictactoe.service.playerservice.ChallengeAcceptedEvent;
-import tictactoe.service.playerservice.ChallengeDeclinedEvent;
+import tictactoe.service.playerservice.ChallengeEvent;
 import tictactoe.service.playerservice.IPlayerEventListener;
 import tictactoe.service.playerservice.PlayerChangeEvent;
 import tictactoe.service.playerservice.PlayerException;
 
 import strata1.common.logger.ILogger;
+import strata1.common.utility.Pair;
 import strata1.integrator.messaging.IMessageSender;
 import strata1.integrator.messaging.IMessagingSession;
 import strata1.integrator.messaging.IObjectMessage;
@@ -21,27 +21,38 @@ import javax.inject.Named;
 /****************************************************************************
  * 
  */
-public 
+public abstract
 class PlayerEventNotifier 
     implements IPlayerEventListener
 {
-    private final IMessagingSession itsSession;
-    private final String            itsEventChannelId;
+    private final IMessagingSession itsSession1;
+    private final IMessagingSession itsSession2;
+    private final String            itsEventChannelId1;
+    private final String            itsEventChannelId2;
     private final ILogger           itsLogger;
 
     /************************************************************************
      * Creates a new PlayerEventNotifier. 
      *
      */
-    public 
+    @Inject
+    protected 
     PlayerEventNotifier(
-        IMessagingSession session,
-        String            eventChannelId,
+        @Named("EventSession1")
+        IMessagingSession session1,
+        @Named("EventSession2")
+        IMessagingSession session2,
+        @Named("EventChannelId1")
+        String            eventChannelId1,
+        @Named("EventChannelId2")
+        String            eventChannelId2,
         ILogger           logger)
     {
-        itsSession        = session;
-        itsEventChannelId = eventChannelId;
-        itsLogger         = logger;
+        itsSession1        = session1;
+        itsSession2        = session2;
+        itsEventChannelId1 = eventChannelId1;
+        itsEventChannelId2 = eventChannelId2;
+        itsLogger          = logger;
     }
 
     /************************************************************************
@@ -51,12 +62,21 @@ class PlayerEventNotifier
     public void 
     onPlayerChange(PlayerChangeEvent event)
     {
+        Pair<IObjectMessage,IObjectMessage> pair = createMessage();
+        
         itsLogger.logInfo( 
             "Sending player change event: " + event.getEventId() );
-        sendMessage( 
-            createMessage()
-                .setStringProperty( "EventType","PlayerChangeEvent" )
-                .setPayload( event ) );
+        
+        pair
+            .getFirst()
+            .setStringProperty( "EventType","PlayerChangeEvent" )
+            .setPayload( event );
+        pair
+            .getSecond()
+            .setStringProperty( "EventType","PlayerChangeEvent" )
+            .setPayload( event );
+        
+        sendMessage( pair );
     }
 
     /************************************************************************
@@ -64,33 +84,24 @@ class PlayerEventNotifier
      */
     @Override
     public void 
-    onChallengeAccepted(ChallengeAcceptedEvent event)
+    onChallenge(ChallengeEvent event)
     {
+        Pair<IObjectMessage,IObjectMessage> pair = createMessage();
+        
         itsLogger.logInfo( 
-            "Sending challenge accepted event: " + event.getEventId() );
-        sendMessage( 
-            createMessage()
-                .setStringProperty( "EventType","ChallengeAcceptedEvent" )
-                .setLongProperty("Challenger",event.getChallengerUserId())
-                .setLongProperty("Challenged",event.getChallengedUserId())
-                .setPayload( event ) );
-    }
-
-    /************************************************************************
-     * {@inheritDoc} 
-     */
-    @Override
-    public void 
-    onChallengeDeclined(ChallengeDeclinedEvent event)
-    {
-        itsLogger.logInfo( 
-            "Sending challenge declined event: " + event.getEventId() );
-        sendMessage( 
-            createMessage()
-                .setStringProperty( "EventType","ChallengeDeclinedEvent" )
-                .setLongProperty("Challenger",event.getChallengerUserId())
-                .setLongProperty("Challenged",event.getChallengedUserId())
-                .setPayload( event ) );
+            "Sending challenge event: " + event.getEventId() );
+        
+        pair
+            .getFirst()
+            .setStringProperty( "EventType","ChallengeEvent" )
+            .setReturnAddress( event.getReturnAddress() )
+            .setPayload( event );
+        pair
+            .getSecond()
+            .setStringProperty( "EventType","ChallengeEvent" )
+            .setPayload( event );
+        
+        sendMessage( pair );
     }
 
     /************************************************************************
@@ -100,8 +111,20 @@ class PlayerEventNotifier
     public void 
     onPlayerException(PlayerException exception)
     {
+        Pair<IObjectMessage,IObjectMessage> pair = createMessage();
+        
         itsLogger.logInfo( "Sending player exception." );
-        sendMessage( createMessage().setPayload( exception ) );
+        
+        pair
+            .getFirst()
+            .setStringProperty( "EventType","PlayerException" )
+            .setPayload( exception );
+        pair
+            .getSecond()
+            .setStringProperty( "EventType","PlayerException" )
+            .setPayload( exception );
+        
+        sendMessage( pair );
     }
     
     /************************************************************************
@@ -109,12 +132,13 @@ class PlayerEventNotifier
      *
      * @return
      */
-    private IObjectMessage
+    private Pair<IObjectMessage,IObjectMessage>
     createMessage()
     {
         return
-            itsSession
-                .createObjectMessage();
+            Pair.create( 
+                itsSession1.createObjectMessage(),
+                itsSession2.createObjectMessage() );
     }
     
     /************************************************************************
@@ -123,13 +147,18 @@ class PlayerEventNotifier
      * @param message
      */
     private void
-    sendMessage(IObjectMessage message)
+    sendMessage(Pair<IObjectMessage,IObjectMessage> message)
     {
-        IMessageSender sender = 
-            itsSession.createMessageSender( itsEventChannelId );
+        IMessageSender sender1 = 
+            itsSession1.createMessageSender( itsEventChannelId1 );
+        IMessageSender sender2 = 
+            itsSession2.createMessageSender( itsEventChannelId2 );
         
-        sender.setTimeToLive( 60*1000 );
-        sender.send( message );
+        sender1.setTimeToLive( 60*1000 );
+        sender2.setTimeToLive( 60*1000 );
+        
+        sender1.send( message.getFirst() );
+        sender2.send( message.getSecond() );
     }
 
 }

@@ -4,19 +4,24 @@
 
 package tictactoe.integration.playerproxy;
 
-import tictactoe.service.playerservice.ChallengeAcceptedEvent;
-import tictactoe.service.playerservice.ChallengeDeclinedEvent;
-import tictactoe.service.playerservice.ChallengePlayerReply;
-import tictactoe.service.playerservice.ChallengePlayerRequest;
+import tictactoe.service.playerservice.AcceptChallengeReply;
+import tictactoe.service.playerservice.AcceptChallengeRequest;
+import tictactoe.service.playerservice.ChallengeEvent;
+import tictactoe.service.playerservice.DeclineChallengeReply;
+import tictactoe.service.playerservice.DeclineChallengeRequest;
 import tictactoe.service.playerservice.GetPlayersReply;
 import tictactoe.service.playerservice.GetPlayersRequest;
 import tictactoe.service.playerservice.IPlayerEventListener;
 import tictactoe.service.playerservice.IPlayerReplyReceiver;
+import tictactoe.service.playerservice.IssueChallengeReply;
+import tictactoe.service.playerservice.IssueChallengeRequest;
 import tictactoe.service.playerservice.PlayerChangeEvent;
 import tictactoe.service.playerservice.PlayerEvent;
 import tictactoe.service.playerservice.PlayerEventListenerId;
 import tictactoe.service.playerservice.PlayerException;
 import tictactoe.service.playerservice.PlayerReply;
+import tictactoe.service.playerservice.StartListeningReply;
+import tictactoe.service.playerservice.StartListeningRequest;
 
 import strata1.common.logger.ILogger;
 import strata1.injector.container.IContainer;
@@ -24,6 +29,8 @@ import strata1.integrator.messaging.IMessageSender;
 import strata1.integrator.messaging.IMessagingSession;
 import strata1.integrator.messaging.IObjectMessage;
 import strata1.integrator.messagingproxy.RequestReplyAndEventMessagingProxy;
+
+import java.util.concurrent.TimeoutException;
 
 /****************************************************************************
  * 
@@ -74,6 +81,8 @@ class PlayerMessagingProxy
         IMessageSender   sender   = createMessageSender();
         String           correlationId = toString(request.getRequestId());
         
+        request.setReturnAddress( getReturnAddress() );
+        
         message
             .setCorrelationId( correlationId )
             .setStringProperty( "RequestType","GetPlayersRequest" )
@@ -90,23 +99,25 @@ class PlayerMessagingProxy
      */
     @Override
     public void 
-    challengePlayer(
-        IPlayerReplyReceiver   receiver,
-        ChallengePlayerRequest request)
+    issueChallenge(
+        IPlayerReplyReceiver  receiver,
+        IssueChallengeRequest request)
     {
         IObjectMessage   message  = createObjectMessage();
         IMessageSender   sender   = createMessageSender();
         String           correlationId = toString(request.getRequestId());
         
+        request.setReturnAddress( getReturnAddress() );
+        
         message
             .setCorrelationId( correlationId )
-            .setStringProperty( "RequestType","ChallengePlayerRequest" )
+            .setStringProperty( "RequestType","IssueChallengeRequest" )
             .setPayload( request );
 
         insertReplyReceiver( correlationId,receiver);
         
         itsLogger.logInfo( 
-            "Sending challenge player request: " + request.getRequestId() );
+            "Sending issue challenge request: " + request.getRequestId() );
         sender.send( message );
     }
 
@@ -114,13 +125,93 @@ class PlayerMessagingProxy
      * {@inheritDoc} 
      */
     @Override
-    public PlayerEventListenerId 
-    startListeningForEvents(IPlayerEventListener listener)
+    public void 
+    acceptChallenge(
+        IPlayerReplyReceiver   receiver,
+        AcceptChallengeRequest request)
     {
-        PlayerEventListenerId id = new PlayerEventListenerId();
+        IObjectMessage   message  = createObjectMessage();
+        IMessageSender   sender   = createMessageSender();
+        String           correlationId = toString(request.getRequestId());
         
-        insertEventListener( id.toString(),listener );
-        return id;
+        request.setReturnAddress( getReturnAddress() );
+        
+        message
+            .setCorrelationId( correlationId )
+            .setStringProperty( "RequestType","AcceptChallengeRequest" )
+            .setPayload( request );
+
+        insertReplyReceiver( correlationId,receiver);
+        
+        itsLogger.logInfo( 
+            "Sending issue challenge request: " + request.getRequestId() );
+        sender.send( message );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    declineChallenge(
+        IPlayerReplyReceiver    receiver,
+        DeclineChallengeRequest request)
+    {
+        IObjectMessage   message  = createObjectMessage();
+        IMessageSender   sender   = createMessageSender();
+        String           correlationId = toString(request.getRequestId());
+        
+        request.setReturnAddress( getReturnAddress() );
+        
+        message
+            .setCorrelationId( correlationId )
+            .setStringProperty( "RequestType","AcceptChallengeRequest" )
+            .setPayload( request );
+
+        insertReplyReceiver( correlationId,receiver);
+        
+        itsLogger.logInfo( 
+            "Sending issue challenge request: " + request.getRequestId() );
+        sender.send( message );
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    startListening(
+        IPlayerReplyReceiver  receiver,
+        StartListeningRequest request)
+    {
+        IObjectMessage message       = null;
+        IMessageSender sender        = null;
+        String         correlationId = null;
+        
+        if ( hasEventListener(getReturnAddress()) )
+            receiver.onStartListening( 
+                new StartListeningReply(request).setListening( true ) );
+         
+        message       = createObjectMessage();
+        sender        = createMessageSender();
+        correlationId = toString(request.getRequestId());
+        receiver      = new BlockingPlayerReplyReceiver(request,20*1000);
+        
+        request.setReturnAddress( getReturnAddress() );
+        
+        message
+            .setCorrelationId( correlationId )
+            .setStringProperty( "RequestType","StartListeningRequest" )
+            .setPayload( request );
+
+        insertReplyReceiver( correlationId,receiver );
+        insertEventListener(
+            request.getReturnAddress(),
+            request.getListener() );
+        
+        itsLogger.logInfo( 
+            "Sending start listening request: " + request.getRequestId() );
+        sender.send( message );
     }
 
     /************************************************************************
@@ -197,8 +288,14 @@ class PlayerMessagingProxy
         
         if ( payload instanceof GetPlayersReply )
             receiver.onGetPlayers( (GetPlayersReply)payload );
-        else if ( payload instanceof ChallengePlayerReply )
-            receiver.onChallengePlayer( (ChallengePlayerReply)payload );
+        else if ( payload instanceof IssueChallengeReply )
+            receiver.onIssueChallenge( (IssueChallengeReply)payload );
+        else if ( payload instanceof AcceptChallengeReply )
+            receiver.onAcceptChallenge( (AcceptChallengeReply)payload );
+        else if ( payload instanceof DeclineChallengeReply )
+            receiver.onDeclineChallenge( (DeclineChallengeReply)payload );
+        else if ( payload instanceof StartListeningReply )
+            receiver.onStartListening( (StartListeningReply)payload );
         else if ( payload instanceof PlayerException )
             receiver.onPlayerException( (PlayerException)payload );
         else if ( payload instanceof Throwable )
@@ -223,18 +320,20 @@ class PlayerMessagingProxy
         if ( payload instanceof PlayerChangeEvent )
             for (IPlayerEventListener listener : getEventListeners() )
                 listener.onPlayerChange( (PlayerChangeEvent)payload );
-        else if ( payload instanceof ChallengeAcceptedEvent )
+        else if ( payload instanceof ChallengeEvent )
+        {
+            System
+                .out
+                .println( "debug: received ChallengeEvent" );
+            
             for (IPlayerEventListener listener : getEventListeners() )
-                listener.onChallengeAccepted(
-                    (ChallengeAcceptedEvent)payload);
-        else if ( payload instanceof ChallengeDeclinedEvent )
-            for (IPlayerEventListener listener : getEventListeners() )
-                listener.onChallengeDeclined(
-                    (ChallengeDeclinedEvent)payload);
+                listener.onChallenge(
+                    (ChallengeEvent)payload);
+        }
         else
             for (IPlayerEventListener listener : getEventListeners() )
                 listener.onPlayerException(
-                    new PlayerException("Unknown event type." ) );
+                    new PlayerException(null,"Unknown event type." ) );
     }
     
     /************************************************************************

@@ -43,6 +43,15 @@ interface ISessionService
 	 */
 	public void
 	logout(ISessionReplyReceiver reply,LogoutRequest request);
+	
+	/************************************************************************
+	 * Sends a {@code KeepAliveRequest} to maintain
+	 * the specified session. 
+	 *
+	 * @param request
+	 */
+	public void
+	keepAlive(KeepAliveRequest request);
 }
 
 // ##########################################################################

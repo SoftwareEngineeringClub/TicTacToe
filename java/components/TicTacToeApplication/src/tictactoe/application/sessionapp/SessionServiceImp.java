@@ -4,13 +4,12 @@
 
 package tictactoe.application.sessionapp;
 
-import tictactoe.service.playerservice.ChangeKind;
 import tictactoe.service.playerservice.IPlayerEventListener;
 import tictactoe.service.playerservice.IPlayerNotifierHost;
 import tictactoe.service.playerservice.PlayerChangeEvent;
-import tictactoe.service.playerservice.PlayerData;
 import tictactoe.service.sessionservice.ISessionReplyReceiver;
 import tictactoe.service.sessionservice.ISessionService;
+import tictactoe.service.sessionservice.KeepAliveRequest;
 import tictactoe.service.sessionservice.LoginReply;
 import tictactoe.service.sessionservice.LoginRequest;
 import tictactoe.service.sessionservice.LogoutReply;
@@ -164,6 +163,34 @@ class SessionServiceImp
         {
             itsLogger.logError(getStackTrace(t));
             receiver.onThrowable( new Exception(getStackTrace(t)) );
+            rollback( unitOfWork );
+        }
+    }
+
+    /************************************************************************
+     * {@inheritDoc} 
+     */
+    @Override
+    public void 
+    keepAlive(KeepAliveRequest request)
+    {
+        IUnitOfWork unitOfWork = itsContext.getUnitOfWork();
+        
+        try
+        {
+            itsProcessor.keepAlive( request );            
+            itsLogger.logDebug( "Committing keep alive request." );
+            unitOfWork.commit();
+            itsLogger.logDebug( "Committed keep alive request." );
+         }
+        catch (RepositoryException e1)
+        {
+            itsLogger.logError( getStackTrace(e1) );
+            rollback( unitOfWork );
+        }
+        catch (Throwable t)
+        {
+            itsLogger.logError(getStackTrace(t));
             rollback( unitOfWork );
         }
     }

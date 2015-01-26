@@ -14,10 +14,7 @@ interface IPlayerEventListener
 	onPlayerChange(PlayerChangeEvent event);
 	
 	public void
-	onChallengeAccepted(ChallengeAcceptedEvent event);
-	
-	public void
-	onChallengeDeclined(ChallengeDeclinedEvent event);
+	onChallenge(ChallengeEvent event);
 	
 	public void
 	onPlayerException(PlayerException exception);

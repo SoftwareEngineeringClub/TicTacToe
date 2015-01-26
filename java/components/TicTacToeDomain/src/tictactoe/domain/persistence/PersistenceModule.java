@@ -5,6 +5,7 @@
 package tictactoe.domain.persistence;
 
 import tictactoe.domain.gamedomain.IGameRepositoryProvider;
+import tictactoe.domain.playerdomain.IChallengeRepositoryProvider;
 import tictactoe.domain.playerdomain.IPlayerRepositoryProvider;
 import tictactoe.domain.sessiondomain.ISessionRepositoryProvider;
 import tictactoe.domain.sessiondomain.IUserRepositoryProvider;
@@ -65,6 +66,11 @@ class PersistenceModule
                     .withScope( 
                         new ThreadScope<IPlayerRepositoryProvider>() ) )
             .insertBinding( 
+                bindType( IChallengeRepositoryProvider.class )
+                    .toType( getChallengeRepositoryProviderType() )
+                    .withScope( 
+                        new ThreadScope<IChallengeRepositoryProvider>() ) )
+            .insertBinding( 
                 bindType( IGameRepositoryProvider.class )
                     .toType( getGameRepositoryProviderType() )
                     .withScope( 
@@ -102,6 +108,14 @@ class PersistenceModule
      */
     protected abstract Class<? extends IPlayerRepositoryProvider> 
     getPlayerRepositoryProviderType();
+
+    /************************************************************************
+     *  
+     *
+     * @return
+     */
+    protected abstract Class<? extends IChallengeRepositoryProvider> 
+    getChallengeRepositoryProviderType();
 
     /************************************************************************
      *  

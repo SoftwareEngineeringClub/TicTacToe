@@ -36,6 +36,7 @@ class SessionModel
     private Long                  itsUserId;
     private LoginReply            itsLoginReply;
     private RegisterReply         itsRegisterReply;
+    private KeepAliveTimer        itsTimer;
     
     /************************************************************************
      * Creates a new SessionModel. 
@@ -50,6 +51,7 @@ class SessionModel
         itsProcessor     = null;
         itsLoginReply    = null;
         itsRegisterReply = null;
+        itsTimer         = null;
     }
 
     /************************************************************************
@@ -216,6 +218,12 @@ class SessionModel
         itsSessionId    = reply.getSessionId();
         itsUserId       = reply.getUserId();
         
+        if ( reply.isLoggedIn() )
+        {
+            itsTimer = new KeepAliveTimer( itsService,reply.getSessionId() );
+            itsTimer.start();
+        }
+        
         notifyChange( new LoginEvent(this) );
     }
 
@@ -234,6 +242,12 @@ class SessionModel
 
         if ( reply.isLoggedOut() )
         {
+            if ( itsTimer != null )
+            {
+                itsTimer.stop();
+                itsTimer = null;
+            }
+            
             itsLoggedInFlag = false;
             itsSessionId    = 0L;
             itsUserId       = 0L;

@@ -21,18 +21,18 @@ class PlayerReply
     
     private final long itsReplyId;
     private final long itsOriginatingRequestId;
+    private String     itsReturnAddress;
     private String     itsMessage;
 
     /************************************************************************
      * Creates a new PlayerReply. 
      *
-     * @param originatingRequestId
+     * @param origRequestId
      */
     public 
-    PlayerReply(long originatingRequestId)
+    PlayerReply(final long origRequestId,String returnAddress)
     {
-        this( generateId(),originatingRequestId );
-        itsMessage = "";
+        this( generateId(),origRequestId,returnAddress );
     }
 
     /************************************************************************
@@ -42,17 +42,35 @@ class PlayerReply
      * @param origRequestId
      */
     public 
-    PlayerReply(final long replyId,final long origRequestId)
+    PlayerReply(
+        final long replyId,
+        final long origRequestId,
+        final String returnAddress)
     {
         itsReplyId              = replyId;
         itsOriginatingRequestId = origRequestId;
+        itsReturnAddress        = returnAddress;
+        itsMessage              = "";
     }
       
+    /************************************************************************
+     * Sets the reply's return address attribute to the specified address. 
+     *
+     * @param  returnAddress
+     * @return reference to this {@code PlayerReply} for method chaining
+     */
+    public PlayerReply
+    setReturnAddress(String returnAddress)
+    {
+        itsReturnAddress = returnAddress;
+        return this;
+    }
+    
     /************************************************************************
      * Sets the reply's message attribute to the specified message. 
      *
      * @param   message     message explaining the result
-     * @return  reference to this {@code SessionReply} for method chaining
+     * @return  reference to this {@code PlayerReply} for method chaining
      */
     public PlayerReply
     setMessage(String message)
@@ -84,6 +102,17 @@ class PlayerReply
     }
     
     /************************************************************************
+     *  
+     *
+     * @return
+     */
+    public String
+    getReturnAddress()
+    {
+        return itsReturnAddress;
+    }
+    
+    /************************************************************************
      * Gets the reply's message attribute. 
      *
      * @return message explaining reply
@@ -106,7 +135,6 @@ class PlayerReply
         
         return id < 0 ? -id : id;
     }
-
 
 }
 

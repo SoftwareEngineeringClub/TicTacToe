@@ -7,9 +7,11 @@ package tictactoe.server.bootstrap;
 import tictactoe.application.playerapp.PlayerAppModule;
 import tictactoe.application.sessionapp.SessionAppModule;
 import tictactoe.application.taskdispatcher.TaskDispatcherModule;
+import tictactoe.application.timer.TimerModule;
 import tictactoe.domain.gamedomain.GameDomainModule;
 import tictactoe.domain.playerdomain.PlayerDomainModule;
 import tictactoe.domain.sessiondomain.SessionDomainModule;
+import tictactoe.integration.playernotifier.PlayerNotifierModule;
 import tictactoe.integration.serviceinvoker.ServiceInvokerModule;
 import tictactoe.serverplatform.hibernatepersistence.HibernatePersistenceModule;
 import tictactoe.serverplatform.jmsmessaging.JmsMessagingModule;
@@ -81,15 +83,17 @@ class TicTacToeServerFactory
         List<IModule> modules = new ArrayList<IModule>();
         
         modules.add( new PropertiesModule( createProperties() ) );
-        modules.add(  new JmsMessagingModule() );
-        modules.add(  new HibernatePersistenceModule() );
-        modules.add(  new SessionDomainModule() );
-        modules.add(  new PlayerDomainModule() );
-        modules.add(  new GameDomainModule() );
-        modules.add(  new SessionAppModule() );
-        modules.add(  new PlayerAppModule() );
-        modules.add(  new TaskDispatcherModule() );
-        modules.add(  new ServiceInvokerModule() );
+        modules.add( new JmsMessagingModule() );
+        modules.add( new HibernatePersistenceModule() );
+        modules.add( new SessionDomainModule() );
+        modules.add( new PlayerDomainModule() );
+        modules.add( new GameDomainModule() );
+        modules.add( new PlayerNotifierModule() );
+        modules.add( new SessionAppModule() );
+        modules.add( new PlayerAppModule() );
+        modules.add( new TaskDispatcherModule() );
+        modules.add( new TimerModule() );
+        modules.add( new ServiceInvokerModule() );
         
         return modules;
     }
